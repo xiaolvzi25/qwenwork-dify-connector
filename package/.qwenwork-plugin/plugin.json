@@ -1,0 +1,11 @@
+{
+  "name": "dify-qwen-cli",
+  "version": "0.1.0",
+  "description": "Dify 企业版 CLI 连接器 Mac Apple Silicon 桌面试验版",
+  "author": {
+    "name": "Dify CLI integration prototype"
+  },
+  "skills": [
+    "skills/dify-qwen/SKILL.md"
+  ]
+}
