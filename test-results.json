@@ -1,0 +1,28 @@
+{
+  "adapter_version": "0.2.0",
+  "binary_tested": "package/bin/darwin_arm64/dify-qwen",
+  "binary_sha256": "cbeedb00706ce3febeceac2fdd0c8cd8d69e7392b47a5fe4aecf6411ac148a74",
+  "command": "python3 tests/test_passthrough.py package/bin/darwin_arm64/dify-qwen",
+  "tests": 15,
+  "result": "passed",
+  "exit_code": 0,
+  "duration_seconds": 14.014,
+  "environment": "macOS arm64, Python3.9 test harness; loopback portal tests outside sandbox; all upstream difyctl responses mocked",
+  "scope": [
+    "byte-exact argv/stdin/stdout/stderr and exit codes",
+    "stream events before CLI process exit",
+    "same PID proves exec; SIGTERM preserved",
+    "isolated connector profile; inherited DIFY credentials stripped",
+    "strict unauthorized JSON for401;403/network not claimed logged-out",
+    "safe identity whitelist and envelope shapes",
+    "unfinished authorization marker prevents stale account use",
+    "Host/Origin/CSRF; repeat-start rejection",
+    "empty default server; cross-origin verification rejected",
+    "portal close cancels pending polling; logout/auth-init exclusion"
+  ],
+  "not_verified": [
+    "live Dify device authorization",
+    "QwenWork install lifecycle and connected status refresh",
+    "Windows/Linux/Intel/Web runtime behavior"
+  ]
+}

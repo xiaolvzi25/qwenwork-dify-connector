@@ -1,0 +1,21 @@
+{
+  "official": {
+    "n": 10,
+    "median_ms": 28.1,
+    "min_ms": 27.19,
+    "max_ms": 29.63
+  },
+  "old_python_adapter": {
+    "n": 10,
+    "median_ms": 96.81,
+    "min_ms": 94.23,
+    "max_ms": 112.48
+  },
+  "native_adapter": {
+    "n": 10,
+    "median_ms": 30.18,
+    "min_ms": 30.03,
+    "max_ms": 31.05
+  },
+  "method": "macOS arm64; offline help login --json; 3 warmups +10 samples; process launch to completion; no server calls; local latency only, not business throughput"
+}

@@ -1,6 +1,20 @@
 ---
 name: difyctl
 description: 'Operate a Dify server through difyctl: find and run any operation, and build, test, publish and change Workflow and Chatflow apps. Use when the task involves difyctl, a Dify server, or Dify apps.'
+display_name: "Dify CLI（测试版）"
+display_name_en: "Dify CLI (Beta)"
+description_zh: "在 WorkBuddy 里用 difyctl 运行和搭建 Dify 应用。支持 Dify Cloud 和私有部署，登录时输入 Dify 控制台地址即可"
+description_en: "Run and build Dify apps with difyctl. For Dify Cloud or self-hosted, log in with your console URL."
+author: "LangGenius"
+examples_zh:
+  - "列出我在 Dify 上的应用"
+  - "运行 Dify 里的客服工作流，问题是……"
+  - "在 Dify 上建一个把网页总结成三点的工作流并发布"
+examples_en:
+  - "List my apps on Dify"
+  - "Run the customer support workflow in Dify. The question is..."
+  - "Build a workflow on Dify that summarizes a web page in three points, then publish it"
+version: "0.1.0"
 ---
 
 # difyctl
@@ -9,7 +23,7 @@ difyctl talks to a Dify server. Business commands are not built in: the server p
 
 Always pass `--json`. Help and errors are text on a terminal and JSON in a pipe; `--json` (or `DIFY_OUTPUT=json`) forces JSON. Results and streams are always JSON.
 
-Operations that remove or revoke have no confirmation prompt. Confirm with the human first.
+Commands whose effect is destructive can't be undone and have no confirmation prompt. Check effect in help and confirm with the human first. Also confirm a server operation that shows no effect.
 
 ## Finding what the CLI can do
 
@@ -20,7 +34,7 @@ Four views under `help`, covering local commands and server operations as one tr
 1. `difyctl help --json`: the map. Start here.
 2. `difyctl help <namespace> --json`: everything under one namespace (`difyctl help get`). The bare namespace, `difyctl get --json`, prints the same.
 3. `difyctl help <words> --json`: search by plain words (`difyctl help upload file`), top 20 entries plus `total`. Widen the words when nothing fits.
-4. `difyctl help <id> --json`: one descriptor, dotted or spaced id. For an operation: `input` (JSON Schema), `bind`, `kind`, `examples` and `pins` (values difyctl fills in, currently `workspace_id`). `<command> --help` prints the same.
+4. `difyctl help <id> --json`: one descriptor, dotted or spaced id. For an operation: `input` (JSON Schema), `bind`, `kind`, `effect`, `examples` and `pins` (values difyctl fills in, currently `workspace_id`). `<command> --help` prints the same.
 
 `--all` adds operations the server marks internal. `--full` on the bare `help` prints every descriptor; rarely needed.
 
@@ -32,3 +46,4 @@ Not logged in, or the server unreachable, gives the local commands plus one line
 - Read [`references/operations.md`](references/operations.md) before running any operation: flags, inputs, files, results, hints, errors and exit codes.
 - Read [`references/build-workflow.md`](references/build-workflow.md) when asked to create, change, test or publish a Workflow or Chatflow app.
 - Read [`references/plugins.md`](references/plugins.md) to find tools, models and knowledge bases before building, when a plugin, model, tool or credential is missing, or when the human asks to install or remove a plugin.
+- Read [`references/workspace-skills.md`](references/workspace-skills.md) to list, read, create, change, roll back or publish a workspace skill.

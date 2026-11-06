@@ -1,0 +1,25 @@
+Adapter 0.2.0 final package verification
+Binary SHA256: cbeedb00706ce3febeceac2fdd0c8cd8d69e7392b47a5fe4aecf6411ac148a74
+Command: python3 tests/test_passthrough.py package/bin/darwin_arm64/dify-qwen
+Upstream CLI is mocked; no live Dify authorization performed. Loopback portal tests run outside sandbox.
+
+test_connector_version (__main__.NativeAdapterTests) ... ok
+test_direct_and_legacy_cli_arguments_are_unchanged (__main__.NativeAdapterTests) ... ok
+test_forbidden_and_network_errors_are_not_logged_out (__main__.NativeAdapterTests) ... ok
+test_incomplete_auth_blocks_stale_identity_and_business (__main__.NativeAdapterTests) ... ok
+test_logout_cannot_succeed_while_authorization_keeps_running (__main__.NativeAdapterTests) ... ok
+test_not_logged_in_is_strict_unauthorized_json_with_exit_zero (__main__.NativeAdapterTests) ... ok
+test_portal_rejects_cross_origin_verification_url (__main__.NativeAdapterTests) ... ok
+test_portal_rejects_host_origin_csrf_and_duplicate_start (__main__.NativeAdapterTests) ... ok
+test_process_is_replaced_and_sigterm_reaches_upstream (__main__.NativeAdapterTests) ... ok
+test_profile_isolation_and_parent_dify_environment_removed (__main__.NativeAdapterTests) ... ok
+test_safe_identity_whitelist_and_account_wrappers (__main__.NativeAdapterTests) ... ok
+test_stdin_is_forwarded_byte_exact (__main__.NativeAdapterTests) ... ok
+test_stdout_stderr_and_exit_code_are_byte_exact (__main__.NativeAdapterTests) ... ok
+test_stream_emits_before_upstream_exits (__main__.NativeAdapterTests) ... ok
+test_unknown_identity_cannot_claim_authorized (__main__.NativeAdapterTests) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 13.954s
+
+OK
