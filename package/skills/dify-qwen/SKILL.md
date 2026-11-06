@@ -1,32 +1,42 @@
 ---
 name: dify-qwen
-description: 通过 Dify 官方 CLI 在当前用户获准的企业空间发现和运行应用，并按授权构建、测试与发布工作流。用于企业 Dify 应用、财务和运维等专业流程。仅适用于 Mac Apple Silicon 桌面连接器。
+description: 在千问办公桌面端通过官方 Dify CLI 连接企业应用，按当前 Dify 身份发现、运行、构建、调试和发布 Workflow 或 Chatflow。支持企业财务、运维与合同审核等已部署流程。仅 macOS Apple Silicon。
 ---
 
 # Dify 企业版连接器
 
-本连接器命令名为 `dify-qwen`，由适配器调用随包提供的官方 difyctl；不是 MCP 服务器。插件安装会同时分发 CLI 和本 Skill，无需往其他智能体的 skills 根目录写文件。
+本连接器调用命令 `dify-qwen`，随包携带官方 difyctl。它是 CLI 连接器；安装包同时提供程序和本 Skill。
 
-## 连接
+## 连接与身份
 
-先运行 `dify-qwen auth show --status`。正常未登录返回 `{"status":"unauthorized"}`，并非业务成功。此时引导用户到连接器页面点击认证；不要自动登录、读取配置文件或索取令牌。
-用户明确要求连接时，可运行 `dify-qwen auth init`，由系统浏览器显示连接向导、服务器输入和鉴权码。用户自行在 Dify 授权页批准，适配器自动检查结果。需要指定服务器时使用 `dify-qwen auth init --server https://企业控制台域名`。不要在 Web Sandbox 运行桌面认证。
+先运行 `dify-qwen auth show --status`。正常未登录为严格 JSON `{"status":"unauthorized"}`，退出码 0。网络错误或权限不足不能当作已连接。未连接时引导用户在连接器页面点击认证，不因业务未授权而自动登录。
 
-## 发现并执行业务
+用户明确要求连接时，可运行 `dify-qwen auth init`。它打开浏览器连接向导：用户填写 HTTPS Dify 控制台地址、看到设备码并自行在 Dify 页面批准，程序自动检测结果。可以用 `--server https://企业控制台域名` 预填地址。不依赖终端输入，不向用户索取令牌，不读取凭据文件。不要在 Web Sandbox 运行本包。
 
-1. `dify-qwen identity whoami` 确认当前身份。
-2. `dify-qwen cli help` 发现当前服务端命令树；不能猜测命令。需要参数时查询 `dify-qwen cli help <命令词>`。
-3. `dify-qwen cli get workspace` 查询可见空间；然后 `dify-qwen cli get console_app --workspace-id <UUID>` 查询应用。
-4. `dify-qwen cli describe console_app --app-id <ID>` 获取 input_schema，按实际变量名准备输入文件。
-5. 按应用模式调用，例如 `dify-qwen cli run console_app workflow --input @request.json`。适配器自动增加 --json；暂不支持 --stream 和逐行事件透传。默认返回折叠的 JSON 结果。
-6. 检查实际返回 status：ended 为正常结束，suspended 等待人工输入，incomplete 不可宣称完成。网络或权限错误不能伪装为空列表。
+认证后用 `dify-qwen identity whoami` 确认身份。若同一台电脑切换千问账号，先确认 Dify 身份并退出旧连接；默认 profile 按 macOS 用户保存，不会自动随千问账号分区。退出仅在用户明确请求时运行 `dify-qwen auth logout`；它只影响本连接器独立 profile，活动认证向导需先关闭。
 
-## 修改边界
+## 发现与调用
 
-运行、修改草稿、安装插件和发布是不同授权；读取目标命令的 effect 后再操作。执行写入必须有用户明确需求；移除和撤权先征得用户确认。未经用户确认不得发布、变更生产资源或代替业务审批人批准。不要通过改 role、指定他人 employee_id 或切换空间绕过服务端鉴权。构建前先检查可用模型、工具和知识库；测试后再按用户要求发布。
+始终显式带 `--json`。业务命令与官方 difyctl 的参数结构相同；适配器不增加参数、不改写输入、不缓冲或重编码输出。
 
-不要读取或输出本机配置目录、令牌或 Keychain 内容。调用业务优先使用此连接器，不使用另一个 difyctl 全局登录绕过当前连接器身份。用户主动请求退出时可执行 `dify-qwen auth logout`，仅影响此连接器的独立 Dify profile。
+1. `dify-qwen help --json` 发现当前服务端命令树。服务端操作随版本变化，不猜命令。
+2. `dify-qwen help <命令词> --json` 查询描述符、输入 schema、effect 和实际示例。
+3. 从可见空间与应用开始，读取应用输入 schema，再准备文件或 JSON 请求；使用描述符中真实的命令、变量和资源 ID。
+4. 根据官方命令使用文件输入与输出；流式选项按实际帮助执行，逐条消费事件，不把首条事件当作完整结果。
+5. 以返回的业务状态和产物验证结果。失败、挂起、等待人工输入、未完成都不能宣称执行成功。
 
-## 官方构建指南
+旧写法 `dify-qwen cli <官方参数>` 仍可使用；新增写法直接使用 `dify-qwen <官方参数>`。不要把操作 ID 的点分结构自行拆改。不要调用全局 difyctl 绕过本连接器身份。
 
-随包包含官方 difyctl 技能与工作流构建参考，见 [官方技能](references/official-difyctl/SKILL.md)。构建、测试和发布前读取相应参考；其中的 `difyctl <业务命令>` 在此连接器中统一映射为 `dify-qwen cli <业务命令>`，不得绕过独立 profile 调用系统全局 difyctl。登录与退出仍使用本技能的 auth 命令。
+## 构建与修改
+
+发现可用模型、工具、插件、知识库后再构建；按切片调试草稿，验证完整输入输出，再依据用户请求发布。运行应用、修改草稿、安装插件和发布是不同操作，执行前阅读 effect 并确认当前任务已授权。移除或撤权先征得用户确认。不得修改角色、冒用员工身份、切换全局 profile 或绕过服务端 RBAC。
+
+不要读取或输出令牌、密钥、本机配置、凭据路径内容和完整调试环境。遇到 403 应报告权限不足；不回退共享账号，也不伪装为空列表。
+
+## 官方参考
+
+构建、测试或发布前按需读取 [官方 difyctl Skill](references/official-difyctl/SKILL.md) 及其引用。参考中的 `difyctl <参数>` 一律通过本连接器的 `dify-qwen <参数>` 执行；认证使用上文千问生命周期命令。官方业务命令未被本适配器重写。`dify-qwen --version` 返回连接器版本 0.2.0，官方版本通过 `dify-qwen version --json` 查询。
+
+## 当前范围
+
+仅 macOS Apple Silicon 桌面端。Dify 必须支持随包官方 difyctl 的设备授权与相应服务端操作目录。网页端需要独立的平台 OAuth 接入，本包不提供。自动化兼容性测试不等于真实客户端安装、授权刷新和业务权限验收。
