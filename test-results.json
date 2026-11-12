@@ -1,18 +1,18 @@
 {
+  "connector_version": "1.0.1",
   "host": "darwin_arm64",
   "result": "passed",
   "exit_code": 0,
   "tests_run": 19,
   "skipped": 2,
-  "duration_seconds": 15.63,
-  "adapter_sha256": "8d174d38b12518e4fcd6e7dc9d49c347726db2773da6500d47e6742dbd7f9dce",
+  "duration_seconds": 16.231,
+  "adapter_sha256": "5d767d9275c4e59e788ed465a1d85e37c0525d8fdd5778a397ba525ea3d6aadd",
   "launcher_sha256": "f4998b1317ee4cf263769a05582ddf2f13cba73d0e0af70c1d1ba2b471caabe7",
-  "scope": "Final macOS native binaries with native Go upstream mock after Linux browser-opener update. Windows console/Job tests skipped on non-Windows. No Windows/Linux execution or live Dify auth claimed.",
-  "adapter_version": "1.1.0",
+  "scope": "Final 1.0.1 macOS native binaries with native Go upstream mock. Windows console/Job tests skipped on non-Windows. No Windows/Linux execution or live Dify auth claimed by this local run.",
   "download_tests": {
     "top_level_tests": 7,
     "result": "passed",
-    "scope": "Loopback HTTP fixtures and temporary cache files; no live account"
+    "scope": "Loopback HTTP fixtures and temporary cache files; no external account or credentials"
   },
-  "native_ci": "Native Windows/Linux/Intel Mac results are published separately in GitHub Actions and release provenance"
+  "native_ci": "Native Windows/Linux/Intel Mac validation is recorded separately in NATIVE-CI-RESULTS.json and GitHub Actions"
 }

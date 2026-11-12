@@ -28,7 +28,7 @@ import (
 	"qwenwork-dify-connector/internal/process"
 )
 
-const version = "1.1.0"
+const version = "1.0.1"
 
 //go:embed portal.html
 var portalHTML string

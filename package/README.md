@@ -1,6 +1,8 @@
-# Dify CLI connector for QwenWork
+# dify
 
-Version 1.1.0 adds Windows and Linux desktop compatibility while retaining the existing Dify device authorization and command interface. The single online installation ZIP contains platform-native adapters and bundled skills; it downloads the unmodified official difyctl 1.18.0 for the current machine on first use, checks the pinned SHA-256 and exact length, then uses a separate local cache.
+Run, build and publish Dify apps. For Dify Cloud or self-hosted, log in with your console URL.
+
+Version 1.0.1 adds Windows and Linux desktop compatibility while retaining the existing Dify device authorization and command interface. The single online installation ZIP contains platform-native adapters and bundled skills; it downloads the unmodified official difyctl 1.18.0 for the current machine on first use, checks the pinned SHA-256 and exact length, then uses a separate local cache.
 
 ## Desktop platforms
 
@@ -24,9 +26,9 @@ The whitepaper describes multi-platform entries but does not explicitly certify 
 
 ## Marketplace upload
 
-1. Import dify-qwen-listing-config-1.1.0.zip into the connector configuration field.
-2. Upload dify-qwen-cli-desktop-multiplatform-online-1.1.0.zip into the separate CLI ZIP installation field.
-3. Set the form version to 1.1.0, delivery to desktop, and authentication to OAuth with the desktop CLI managing login. Keep the existing marketplace resource identifier when updating a listing.
+1. Import dify-qwen-listing-config-1.0.1.zip into the connector configuration field.
+2. Upload dify-qwen-cli-desktop-multiplatform-online-1.0.1.zip into the separate CLI ZIP installation field.
+3. Set the form version to 1.0.1, delivery to desktop, and authentication to OAuth with the desktop CLI managing login. Keep the existing marketplace resource identifier when updating a listing.
 4. Test installation, Connect, a real authorized read-only business call, disconnect and token refresh on each target client before broad distribution.
 
 The configuration declares connector_kind=cli and clients=[desktop]. It has no MCP URL, MCP declaration or embedded user credentials. Do not select Web delivery for this desktop device flow. Previous 0.2.1/1.0.0 marketplace upload results do not establish acceptance of this new online multi-platform package.
@@ -39,7 +41,7 @@ The configuration declares connector_kind=cli and clients=[desktop]. It has no M
 4. Official difyctl completes authorization; the adapter verifies the account API and QwenWork checks dify-qwen auth show --status.
 5. Use dify-qwen help --json to discover server operations, then read command help before running the user-authorized operation.
 
-The existing auth init, auth show --status, auth logout, identity whoami and --version interface remains. dify-qwen --version prints 1.1.0; dify-qwen version --json delegates to the official CLI version command. Authentication does not grant any additional Dify permissions.
+The existing auth init, auth show --status, auth logout, identity whoami and --version interface remains. dify-qwen --version prints 1.0.1; dify-qwen version --json delegates to the official CLI version command. Authentication does not grant any additional Dify permissions.
 
 ## Runtime and credentials
 

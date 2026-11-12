@@ -1,7 +1,7 @@
 {
-  "name": "dify-qwen-cli",
-  "version": "1.1.0",
-  "description": "Dify CLI connector for QwenWork desktop on Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon",
+  "name": "dify",
+  "version": "1.0.1",
+  "description": "运行、搭建和发布 Dify 应用。支持 Dify Cloud 和私有部署，登录时输入你的 Dify 控制台地址即可",
   "author": {
     "name": "Dify integration project"
   },

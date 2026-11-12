@@ -1,6 +1,4 @@
-Local macOS ARM64 regression for adapter 1.1.0
-All account and authorization responses mocked. Two Windows-only tests explicitly skipped on this host; native Windows CI executes them.
-Seven download/receipt/redirect Go tests passed using local HTTP fixtures.
+Local Apple Silicon adapter 1.0.1: 17 passed, 2 Windows-only tests skipped on this host. No live Dify login.
 
 test_connector_version (__main__.NativeAdapterTests) ... ok
 test_direct_and_legacy_cli_arguments_are_unchanged (__main__.NativeAdapterTests) ... ok
@@ -23,6 +21,70 @@ test_windows_ctrl_break_cancels_authorization_process_tree (__main__.NativeAdapt
 test_windows_ctrl_c_cancels_business_process_tree (__main__.NativeAdapterTests) ... skipped 'Windows console and Job Object regression'
 
 ----------------------------------------------------------------------
-Ran 19 tests in 15.565s
+Ran 19 tests in 16.150s
 
 OK (skipped=2)
+
+Go download-integrity regression:
+=== RUN   TestDownloadOfficialPublishesVerifiedBinaryAtomically
+--- PASS: TestDownloadOfficialPublishesVerifiedBinaryAtomically (0.02s)
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/checksum
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/content-length
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/chunked-short
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/chunked-oversized
+--- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache (0.01s)
+    --- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/checksum (0.00s)
+    --- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/content-length (0.00s)
+    --- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/chunked-short (0.00s)
+    --- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/chunked-oversized (0.00s)
+=== RUN   TestDownloadOfficialInterruptedTransferPreservesCache
+--- PASS: TestDownloadOfficialInterruptedTransferPreservesCache (0.00s)
+=== RUN   TestDownloadOfficialCancellationPreservesCache
+--- PASS: TestDownloadOfficialCancellationPreservesCache (0.00s)
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/checksum
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/bytes
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/timestamp
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/malformed
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/missing
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/binary-timestamp
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/binary-size
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/binary-permission
+--- PASS: TestReceiptInvalidatesChangedFileOrReceipt (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/checksum (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/bytes (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/timestamp (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/malformed (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/missing (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/binary-timestamp (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/binary-size (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/binary-permission (0.00s)
+=== RUN   TestUpstreamCatalogPinsSupportedOfficialAssets
+--- PASS: TestUpstreamCatalogPinsSupportedOfficialAssets (0.00s)
+=== RUN   TestOfficialHTTPRedirectPolicy
+=== RUN   TestOfficialHTTPRedirectPolicy/https://github.com/langgenius/dify/releases/download/1.18.0/asset
+=== RUN   TestOfficialHTTPRedirectPolicy/https://release-assets.githubusercontent.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://objects.githubusercontent.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://github-releases.githubusercontent.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://GITHUB.COM/download
+=== RUN   TestOfficialHTTPRedirectPolicy/http://github.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/http://release-assets.githubusercontent.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://github.com.attacker.invalid/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://attacker.invalid/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://user:password@github.com/download
+--- PASS: TestOfficialHTTPRedirectPolicy (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://github.com/langgenius/dify/releases/download/1.18.0/asset (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://release-assets.githubusercontent.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://objects.githubusercontent.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://github-releases.githubusercontent.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://GITHUB.COM/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/http://github.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/http://release-assets.githubusercontent.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://github.com.attacker.invalid/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://attacker.invalid/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://user:password@github.com/download (0.00s)
+PASS
+ok  	qwenwork-dify-connector/src	1.895s
+?   	qwenwork-dify-connector/internal/process	[no test files]
+?   	qwenwork-dify-connector/cmd/launcher	[no test files]
