@@ -1,8 +1,6 @@
-Adapter 1.0.0 final package verification
-Adapter SHA256: 41ed0e1f0bd7b9e88dfde5cb25ed4c7fba7c5eaceb6f0b4a4257480c91d8953a
-Launcher SHA256: fe2cd7e9ae0ac479650af29ca159533fbb70c27f77adf1fca67018053fca2d35
-Command: python3 tests/test_passthrough.py package/bin/darwin_arm64/dify-qwen
-Upstream CLI is mocked; no live Dify authorization performed. Loopback portal tests run outside sandbox.
+Local macOS ARM64 regression for adapter 1.1.0
+All account and authorization responses mocked. Two Windows-only tests are explicitly skipped here; native CI runs them on Windows.
+Seven download/receipt/redirect Go tests passed using local HTTP fixtures.
 
 test_connector_version (__main__.NativeAdapterTests) ... ok
 test_direct_and_legacy_cli_arguments_are_unchanged (__main__.NativeAdapterTests) ... ok
@@ -21,8 +19,10 @@ test_stream_emits_before_upstream_exits (__main__.NativeAdapterTests) ... ok
 test_top_level_entry_exec_signal_and_safe_missing_target (__main__.NativeAdapterTests) ... ok
 test_top_level_entry_preserves_arguments_and_binary_io (__main__.NativeAdapterTests) ... ok
 test_unknown_identity_cannot_claim_authorized (__main__.NativeAdapterTests) ... ok
+test_windows_ctrl_break_cancels_authorization_process_tree (__main__.NativeAdapterTests) ... skipped 'Windows console and Job Object regression'
+test_windows_ctrl_c_cancels_business_process_tree (__main__.NativeAdapterTests) ... skipped 'Windows console and Job Object regression'
 
 ----------------------------------------------------------------------
-Ran 17 tests in 14.823s
+Ran 19 tests in 16.561s
 
-OK
+OK (skipped=2)

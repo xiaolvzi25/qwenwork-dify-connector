@@ -1,32 +1,18 @@
 {
-  "adapter_version": "1.0.0",
-  "binary_tested": "package/bin/darwin_arm64/dify-qwen",
-  "launcher_tested": "package/bin/dify-qwen",
-  "adapter_sha256": "41ed0e1f0bd7b9e88dfde5cb25ed4c7fba7c5eaceb6f0b4a4257480c91d8953a",
-  "launcher_sha256": "fe2cd7e9ae0ac479650af29ca159533fbb70c27f77adf1fca67018053fca2d35",
-  "command": "python3 tests/test_passthrough.py package/bin/darwin_arm64/dify-qwen",
-  "tests": 17,
+  "host": "darwin_arm64",
   "result": "passed",
   "exit_code": 0,
-  "duration_seconds": 14.883,
-  "environment": "macOS arm64, Python3.9 test harness; loopback portal tests outside sandbox; all upstream difyctl responses mocked",
-  "scope": [
-    "byte-exact argv/stdin/stdout/stderr and exit codes",
-    "stream events before CLI process exit",
-    "same PID proves exec; SIGTERM preserved",
-    "top-level launcher argument/binary IO/exit forwarding and safe missing-target errors",
-    "top-level launcher process replacement and SIGTERM",
-    "isolated connector profile; inherited DIFY credentials stripped",
-    "strict unauthorized JSON for401;403/network not claimed logged-out",
-    "safe identity whitelist and envelope shapes",
-    "unfinished authorization marker prevents stale account use",
-    "Host/Origin/CSRF; repeat-start rejection",
-    "empty default server; cross-origin verification rejected",
-    "portal close cancels pending polling; logout/auth-init exclusion"
-  ],
-  "not_verified": [
-    "live Dify device authorization",
-    "QwenWork install lifecycle and connected status refresh",
-    "Windows/Linux/Intel/Web runtime behavior"
-  ]
+  "tests_run": 19,
+  "skipped": 2,
+  "duration_seconds": 16.641,
+  "adapter_sha256": "6f828f1ab6508400c4fc6b620bf2dc9509cacc59a76508cda6accaefb243514b",
+  "launcher_sha256": "f4998b1317ee4cf263769a05582ddf2f13cba73d0e0af70c1d1ba2b471caabe7",
+  "scope": "Real macOS native binaries with native Go upstream mock. Windows console/Job tests skipped on non-Windows. No Windows/Linux execution or live Dify auth claimed.",
+  "adapter_version": "1.1.0",
+  "download_tests": {
+    "top_level_tests": 7,
+    "result": "passed",
+    "scope": "Loopback HTTP test server and temporary files; no live account or external network"
+  },
+  "native_ci": "Separate Windows/Linux/Intel Mac jobs are configured; see GitHub Actions for current results"
 }

@@ -16,17 +16,19 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
+
+	"qwenwork-dify-connector/internal/process"
 )
 
-const version = "1.0.0"
+const version = "1.1.0"
 
 //go:embed portal.html
 var portalHTML string
@@ -57,11 +59,11 @@ func root() (string, error) {
 		path = os.Getenv("QWEN_DIFY_CONFIG_DIR")
 	}
 	if path == "" {
-		home, err := os.UserHomeDir()
+		var err error
+		path, err = defaultProfileRoot()
 		if err != nil {
 			return "", err
 		}
-		path = filepath.Join(home, ".config", "qwenwork-dify-connector")
 	}
 	absolute, err := filepath.Abs(path)
 	if err != nil {
@@ -75,7 +77,7 @@ func root() (string, error) {
 	}
 	return absolute, nil
 }
-func binary() (string, error) {
+func binary(ctx context.Context) (string, error) {
 	if vendorPath != "" {
 		return vendorPath, nil
 	}
@@ -83,7 +85,11 @@ func binary() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Clean(filepath.Join(filepath.Dir(self), "..", "..", "vendor", "darwin_arm64", "difyctl")), nil
+	bundled := filepath.Clean(filepath.Join(filepath.Dir(self), "..", "..", "vendor", runtime.GOOS+"_"+runtime.GOARCH, executableName("difyctl")))
+	if info, err := os.Stat(bundled); err == nil && info.Mode().IsRegular() {
+		return bundled, nil
+	}
+	return ensureOfficialCLI(ctx)
 }
 func cleanEnv() ([]string, error) {
 	dir, err := root()
@@ -92,7 +98,11 @@ func cleanEnv() ([]string, error) {
 	}
 	out := []string{}
 	for _, item := range os.Environ() {
-		if !strings.HasPrefix(item, "DIFY_") {
+		key := item
+		if runtime.GOOS == "windows" {
+			key = strings.ToUpper(key)
+		}
+		if !strings.HasPrefix(key, "DIFY_") {
 			out = append(out, item)
 		}
 	}
@@ -205,7 +215,7 @@ type upstreamResult struct {
 }
 
 func invoke(ctx context.Context, args ...string) (upstreamResult, error) {
-	path, err := binary()
+	path, err := binary(ctx)
 	if err != nil {
 		return upstreamResult{}, err
 	}
@@ -215,36 +225,13 @@ func invoke(ctx context.Context, args ...string) (upstreamResult, error) {
 	}
 	callCtx, cancel := context.WithTimeout(ctx, 35*time.Second)
 	defer cancel()
-	command := exec.CommandContext(callCtx, path, append(args, "--json")...)
-	command.Env = env
-	// Authentication helpers must not leave descendants behind on cancellation.
-	command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	command.Cancel = func() error {
-		if command.Process == nil {
-			return os.ErrProcessDone
-		}
-		e := syscall.Kill(-command.Process.Pid, syscall.SIGKILL)
-		if errors.Is(e, syscall.ESRCH) {
-			return os.ErrProcessDone
-		}
-		return e
-	}
-	command.WaitDelay = 2 * time.Second
-	command.Stdin = nil
 	var stdout, stderr strings.Builder
-	command.Stdout = &stdout
-	command.Stderr = &stderr
-	err = command.Run()
+	exit, err := process.Run(callCtx, path, append(args, "--json"), env, nil, &stdout, &stderr)
 	if callCtx.Err() != nil {
 		return upstreamResult{}, problem("E-0004", "Dify 请求超时或已取消，请检查网络后重试。")
 	}
-	exit := 0
 	if err != nil {
-		var e *exec.ExitError
-		if !errors.As(err, &e) {
-			return upstreamResult{}, problem("E-0004", "无法启动官方 difyctl，请检查安装文件和执行权限。")
-		}
-		exit = e.ExitCode()
+		return upstreamResult{}, problem("E-0004", "无法启动官方 difyctl，请检查安装文件和执行权限。")
 	}
 	body := stdout.String()
 	if strings.TrimSpace(body) == "" {
@@ -313,7 +300,15 @@ func account(ctx context.Context, checkMarker bool) (map[string]string, error) {
 	return out, nil
 }
 func authStatus(ctx context.Context) error {
-	_, err := account(ctx, true)
+	fresh, err := freshUninstalledProfile()
+	if err != nil {
+		return err
+	}
+	if fresh {
+		printJSON(map[string]string{"status": "unauthorized"})
+		return nil
+	}
+	_, err = account(ctx, true)
 	if err == nil {
 		printJSON(map[string]string{"status": "authorized"})
 		return nil
@@ -465,7 +460,7 @@ func runAuthorization(ctx context.Context, server string, state *portalState) {
 }
 func authPortal(ctx context.Context, args []string) error {
 	if os.Getenv("QWENWORK_SANDBOX_ID") != "" {
-		return problem("E-0003", "本包仅支持 Mac 桌面；Web 请使用平台 OAuth 适配。")
+		return problem("E-0003", "本包仅支持桌面；Web 请使用平台 OAuth 适配。")
 	}
 	fs := flag.NewFlagSet("auth init", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
@@ -492,10 +487,10 @@ func authPortal(ctx context.Context, args []string) error {
 		return err
 	}
 	defer lock.Close()
-	if syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB) != nil {
+	if lockFile(lock) != nil {
 		return problem("E-0003", "已有连接向导正在运行，请先完成或关闭该向导。")
 	}
-	defer syscall.Flock(int(lock.Fd()), syscall.LOCK_UN)
+	defer unlockFile(lock)
 	listener, err := net.Listen("tcp4", "127.0.0.1:0")
 	if err != nil {
 		return problem("E-0004", "无法创建本机连接向导，请检查回环端口权限。")
@@ -601,7 +596,7 @@ func authPortal(ctx context.Context, args []string) error {
 	address := origin + endpoint
 	if *noOpen {
 		printJSON(map[string]string{"local_setup_url": address})
-	} else if exec.Command("open", address).Run() != nil {
+	} else if openBrowser(address) != nil {
 		return problem("E-0004", "系统浏览器无法打开，请检查默认浏览器设置。")
 	}
 	ticker := time.NewTicker(250 * time.Millisecond)
@@ -663,10 +658,10 @@ func mainRun(args []string) error {
 			return err
 		}
 		defer lock.Close()
-		if syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB) != nil {
+		if lockFile(lock) != nil {
 			return problem("E-0003", "认证向导仍在运行，请先关闭向导，再退出连接器。")
 		}
-		defer syscall.Flock(int(lock.Fd()), syscall.LOCK_UN)
+		defer unlockFile(lock)
 		r, err := invoke(ctx, "logout")
 		if err != nil {
 			return err
@@ -695,7 +690,7 @@ func mainRun(args []string) error {
 	if required {
 		return problem("E-0001", "连接向导未完成，请先认证；不会使用之前账号执行此操作。")
 	}
-	path, err := binary()
+	path, err := binary(ctx)
 	if err != nil {
 		return err
 	}
@@ -703,7 +698,7 @@ func mainRun(args []string) error {
 	if err != nil {
 		return err
 	}
-	if err = syscall.Exec(path, append([]string{path}, args...), env); err != nil {
+	if err = process.Replace(ctx, path, args, env); err != nil {
 		return problem("E-0004", "无法启动官方 difyctl，请检查安装包和执行权限。")
 	}
 	return nil

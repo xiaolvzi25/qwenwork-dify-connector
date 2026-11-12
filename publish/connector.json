@@ -3,8 +3,8 @@
   "server_key": "dify",
   "display_name": "Dify",
   "display_name_cn": "Dify",
-  "description": "通过千问办公连接 Dify 企业应用与工作流。用户填写企业 Dify 控制台地址，在浏览器完成本人授权后，可按当前 Dify 身份与权限发现、运行应用，并辅助搭建、调试和发布工作流。\n\n随包提供官方 difyctl 与配套 Skill，业务命令直接调用官方 CLI。适用于 macOS Apple Silicon 桌面端，使用 CLI 自管 OAuth 授权。首次认证由本机浏览器向导展示设备码并检测授权结果，凭据保存在独立的本机配置中。实际可用能力由 Dify 服务端版本及当前账号权限决定。",
-  "version": "1.0.0",
+  "description": "通过千问办公连接 Dify 企业应用与工作流。用户填写企业 Dify 控制台地址，在浏览器完成本人授权后，可按当前 Dify 身份与权限发现、运行应用，并辅助搭建、调试和发布工作流。\n\n支持 Windows x64、Linux x64/ARM64 和 macOS Intel/Apple Silicon 桌面端，使用 CLI 自管 OAuth 授权。通用包内置各平台原生适配器与 Skill，首次使用下载固定版本的官方 difyctl 并校验 SHA-256，之后使用独立的本机缓存。首次连接需要访问 GitHub 官方发布地址；Linux 需要图形桌面、glibc 2.28+ 和 xdg-open。凭据由官方 CLI 在当前系统用户的独立配置中管理。实际可用能力由 Dify 服务端版本及当前账号权限决定。不支持网页 Sandbox、32 位系统或 Windows ARM64 原生运行。",
+  "version": "1.1.0",
   "provider_name": "Dify",
   "category_code": "developer_tools",
   "clients": [

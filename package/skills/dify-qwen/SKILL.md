@@ -1,11 +1,11 @@
 ---
 name: dify-qwen
-description: 在千问办公桌面端通过官方 Dify CLI 连接企业应用，按当前 Dify 身份发现、运行、构建、调试和发布 Workflow 或 Chatflow。支持企业财务、运维与合同审核等已部署流程。仅 macOS Apple Silicon。
+description: 在千问办公桌面端通过官方 Dify CLI 连接企业应用，按当前 Dify 身份发现、运行、构建、调试和发布 Workflow 或 Chatflow。支持企业财务、运维与合同审核等已部署流程，适用于 Windows x64、Linux x64/ARM64 和 macOS Intel/Apple Silicon。
 ---
 
 # Dify 企业版连接器
 
-本连接器调用命令 `dify-qwen`，顶层入口为 `bin/dify-qwen`，由原生启动器透明转交 `bin/darwin_arm64/dify-qwen`，随包携带官方 difyctl。它是 CLI 连接器；安装包同时提供程序和本 Skill。
+本连接器调用命令 `dify-qwen`。Unix 顶层入口为 `bin/dify-qwen`，Windows 为 `bin/dify-qwen.exe`，自动选择本机系统与架构的原生适配器。首次使用下载固定版本官方 difyctl 并校验 SHA-256，之后使用本机缓存；用户不需要安装 Python、Node.js 或 Go。它是 CLI 连接器，安装包同时提供适配器和本 Skill。
 
 ## 连接与身份
 
@@ -13,7 +13,7 @@ description: 在千问办公桌面端通过官方 Dify CLI 连接企业应用，
 
 用户明确要求连接时，可运行 `dify-qwen auth init`。它打开浏览器连接向导：用户填写 HTTPS Dify 控制台地址、看到设备码并自行在 Dify 页面批准，程序自动检测结果。可以用 `--server https://企业控制台域名` 预填地址。不依赖终端输入，不向用户索取令牌，不读取凭据文件。不要在 Web Sandbox 运行本包。
 
-认证后用 `dify-qwen identity whoami` 确认身份。若同一台电脑切换千问账号，先确认 Dify 身份并退出旧连接；默认 profile 按 macOS 用户保存，不会自动随千问账号分区。退出仅在用户明确请求时运行 `dify-qwen auth logout`；它只影响本连接器独立 profile，活动认证向导需先关闭。
+认证后用 `dify-qwen identity whoami` 确认身份。若同一台电脑切换千问账号，先确认 Dify 身份并退出旧连接；默认 profile 按操作系统用户保存，不会自动随千问账号分区。退出仅在用户明确请求时运行 `dify-qwen auth logout`；它只影响本连接器独立 profile，活动认证向导需先关闭。
 
 ## 发现与调用
 
@@ -35,8 +35,8 @@ description: 在千问办公桌面端通过官方 Dify CLI 连接企业应用，
 
 ## 官方参考
 
-构建、测试或发布前按需读取 [官方 difyctl Skill](references/official-difyctl/SKILL.md) 及其引用。参考中的 `difyctl <参数>` 一律通过本连接器的 `dify-qwen <参数>` 执行；认证使用上文千问生命周期命令。官方业务命令未被本适配器重写。`dify-qwen --version` 返回连接器版本 1.0.0，官方版本通过 `dify-qwen version --json` 查询。
+构建、测试或发布前按需读取 [官方 difyctl Skill](references/official-difyctl/SKILL.md) 及其引用。参考中的 `difyctl <参数>` 一律通过本连接器的 `dify-qwen <参数>` 执行；认证使用上文千问生命周期命令。官方业务命令未被本适配器重写。`dify-qwen --version` 返回连接器版本 1.1.0，官方版本通过 `dify-qwen version --json` 查询。
 
 ## 当前范围
 
-仅 macOS Apple Silicon 桌面端。Dify 必须支持随包官方 difyctl 的设备授权与相应服务端操作目录。网页端需要独立的平台 OAuth 接入，本包不提供。自动化兼容性测试不等于真实客户端安装、授权刷新和业务权限验收。
+支持 Windows x64、Linux x64/ARM64 和 macOS Intel/Apple Silicon 桌面端。首次连接需访问 GitHub 官方发布下载地址，下载失败应检查网络，不改用未校验程序。Linux 需图形桌面、glibc 2.28+ 和 xdg-open。Dify 必须支持固定版本官方 difyctl 的设备授权与相应服务端操作目录。网页端需要独立的平台 OAuth 接入，本包不提供。Windows ARM64 原生与 32 位系统不在本包范围。自动化兼容性测试不等于真实客户端安装、授权刷新和业务权限验收。
