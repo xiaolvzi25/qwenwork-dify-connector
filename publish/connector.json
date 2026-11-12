@@ -1,0 +1,14 @@
+{
+  "connector_kind": "cli",
+  "server_key": "dify",
+  "display_name": "dify",
+  "display_name_cn": "dify",
+  "description": "运行、搭建和发布 Dify 应用。支持 Dify Cloud 和私有部署，登录时输入你的 Dify 控制台地址即可",
+  "version": "1.0.1",
+  "provider_name": "Dify",
+  "category_code": "developer_tools",
+  "clients": [
+    "desktop"
+  ],
+  "auth_type": "oauth"
+}

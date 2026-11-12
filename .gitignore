@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Native connector build outputs and bundled upstream binary
+.build-cache/
+.build-gopath/
+package/bin/
+package/vendor/
+.DS_Store

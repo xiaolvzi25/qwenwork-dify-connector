@@ -1,7 +1,8 @@
-Bundled upstream: difyctl 1.18.0 stable macOS arm64, unmodified.
+Official upstream: difyctl 1.18.0, unmodified.
 Source: https://github.com/langgenius/dify/tree/1.18.0/cli
-Asset: https://github.com/langgenius/dify/releases/download/1.18.0/difyctl-v1.18.0-darwin-arm64
-SHA-256: c9dd3e4ac2e5e5afa7e3ae6c2ab0794994c834438b25791fc8de13c614c13b85
+Release: https://github.com/langgenius/dify/releases/tag/1.18.0
+The online package downloads the platform-specific executable and verifies the pinned SHA-256 and exact byte length in src/upstream-catalog.json.
+No upstream executable is embedded in the default online ZIP.
 Copyright belongs to the upstream authors. See DIFY-LICENSE.txt.
-The adapter is a local integration prototype, not an official certification by Alibaba or Dify.
+The adapter is an integration project and does not claim official certification by Alibaba or Dify.
 Redistribution and public listing must respect the upstream license and respective trademark permissions.

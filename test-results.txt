@@ -1,0 +1,90 @@
+Local Apple Silicon adapter 1.0.1: 17 passed, 2 Windows-only tests skipped on this host. No live Dify login.
+
+test_connector_version (__main__.NativeAdapterTests) ... ok
+test_direct_and_legacy_cli_arguments_are_unchanged (__main__.NativeAdapterTests) ... ok
+test_forbidden_and_network_errors_are_not_logged_out (__main__.NativeAdapterTests) ... ok
+test_incomplete_auth_blocks_stale_identity_and_business (__main__.NativeAdapterTests) ... ok
+test_logout_cannot_succeed_while_authorization_keeps_running (__main__.NativeAdapterTests) ... ok
+test_not_logged_in_is_strict_unauthorized_json_with_exit_zero (__main__.NativeAdapterTests) ... ok
+test_portal_rejects_cross_origin_verification_url (__main__.NativeAdapterTests) ... ok
+test_portal_rejects_host_origin_csrf_and_duplicate_start (__main__.NativeAdapterTests) ... ok
+test_process_is_replaced_and_sigterm_reaches_upstream (__main__.NativeAdapterTests) ... ok
+test_profile_isolation_and_parent_dify_environment_removed (__main__.NativeAdapterTests) ... ok
+test_safe_identity_whitelist_and_account_wrappers (__main__.NativeAdapterTests) ... ok
+test_stdin_is_forwarded_byte_exact (__main__.NativeAdapterTests) ... ok
+test_stdout_stderr_and_exit_code_are_byte_exact (__main__.NativeAdapterTests) ... ok
+test_stream_emits_before_upstream_exits (__main__.NativeAdapterTests) ... ok
+test_top_level_entry_exec_signal_and_safe_missing_target (__main__.NativeAdapterTests) ... ok
+test_top_level_entry_preserves_arguments_and_binary_io (__main__.NativeAdapterTests) ... ok
+test_unknown_identity_cannot_claim_authorized (__main__.NativeAdapterTests) ... ok
+test_windows_ctrl_break_cancels_authorization_process_tree (__main__.NativeAdapterTests) ... skipped 'Windows console and Job Object regression'
+test_windows_ctrl_c_cancels_business_process_tree (__main__.NativeAdapterTests) ... skipped 'Windows console and Job Object regression'
+
+----------------------------------------------------------------------
+Ran 19 tests in 16.150s
+
+OK (skipped=2)
+
+Go download-integrity regression:
+=== RUN   TestDownloadOfficialPublishesVerifiedBinaryAtomically
+--- PASS: TestDownloadOfficialPublishesVerifiedBinaryAtomically (0.02s)
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/checksum
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/content-length
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/chunked-short
+=== RUN   TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/chunked-oversized
+--- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache (0.01s)
+    --- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/checksum (0.00s)
+    --- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/content-length (0.00s)
+    --- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/chunked-short (0.00s)
+    --- PASS: TestDownloadOfficialRejectsCorruptionWithoutReplacingCache/chunked-oversized (0.00s)
+=== RUN   TestDownloadOfficialInterruptedTransferPreservesCache
+--- PASS: TestDownloadOfficialInterruptedTransferPreservesCache (0.00s)
+=== RUN   TestDownloadOfficialCancellationPreservesCache
+--- PASS: TestDownloadOfficialCancellationPreservesCache (0.00s)
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/checksum
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/bytes
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/timestamp
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/malformed
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/missing
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/binary-timestamp
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/binary-size
+=== RUN   TestReceiptInvalidatesChangedFileOrReceipt/binary-permission
+--- PASS: TestReceiptInvalidatesChangedFileOrReceipt (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/checksum (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/bytes (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/timestamp (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/malformed (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/missing (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/binary-timestamp (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/binary-size (0.00s)
+    --- PASS: TestReceiptInvalidatesChangedFileOrReceipt/binary-permission (0.00s)
+=== RUN   TestUpstreamCatalogPinsSupportedOfficialAssets
+--- PASS: TestUpstreamCatalogPinsSupportedOfficialAssets (0.00s)
+=== RUN   TestOfficialHTTPRedirectPolicy
+=== RUN   TestOfficialHTTPRedirectPolicy/https://github.com/langgenius/dify/releases/download/1.18.0/asset
+=== RUN   TestOfficialHTTPRedirectPolicy/https://release-assets.githubusercontent.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://objects.githubusercontent.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://github-releases.githubusercontent.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://GITHUB.COM/download
+=== RUN   TestOfficialHTTPRedirectPolicy/http://github.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/http://release-assets.githubusercontent.com/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://github.com.attacker.invalid/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://attacker.invalid/download
+=== RUN   TestOfficialHTTPRedirectPolicy/https://user:password@github.com/download
+--- PASS: TestOfficialHTTPRedirectPolicy (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://github.com/langgenius/dify/releases/download/1.18.0/asset (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://release-assets.githubusercontent.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://objects.githubusercontent.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://github-releases.githubusercontent.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://GITHUB.COM/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/http://github.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/http://release-assets.githubusercontent.com/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://github.com.attacker.invalid/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://attacker.invalid/download (0.00s)
+    --- PASS: TestOfficialHTTPRedirectPolicy/https://user:password@github.com/download (0.00s)
+PASS
+ok  	qwenwork-dify-connector/src	1.895s
+?   	qwenwork-dify-connector/internal/process	[no test files]
+?   	qwenwork-dify-connector/cmd/launcher	[no test files]

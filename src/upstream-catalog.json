@@ -1,0 +1,31 @@
+{
+  "version": "1.18.0",
+  "release_url": "https://github.com/langgenius/dify/releases/tag/1.18.0",
+  "platforms": {
+    "darwin_arm64": {
+      "url": "https://github.com/langgenius/dify/releases/download/1.18.0/difyctl-v1.18.0-darwin-arm64",
+      "sha256": "c9dd3e4ac2e5e5afa7e3ae6c2ab0794994c834438b25791fc8de13c614c13b85",
+      "bytes": 63151602
+    },
+    "darwin_amd64": {
+      "url": "https://github.com/langgenius/dify/releases/download/1.18.0/difyctl-v1.18.0-darwin-x64",
+      "sha256": "430374c00dcca3421b6793f4d04b23e6b9e54e76a618b19e2881d816cf75d6ee",
+      "bytes": 70267152
+    },
+    "linux_arm64": {
+      "url": "https://github.com/langgenius/dify/releases/download/1.18.0/difyctl-v1.18.0-linux-arm64",
+      "sha256": "ba696fb67bacce63aba9fa9ab9b67bbf4300429a5a5dfb13879938371dc22780",
+      "bytes": 84461864
+    },
+    "linux_amd64": {
+      "url": "https://github.com/langgenius/dify/releases/download/1.18.0/difyctl-v1.18.0-linux-x64",
+      "sha256": "2ab8eafb3c6870272fef0c9d1faea99181500905091a6c7b38e4e5c9822eb99b",
+      "bytes": 84792800
+    },
+    "windows_amd64": {
+      "url": "https://github.com/langgenius/dify/releases/download/1.18.0/difyctl-v1.18.0-windows-x64.exe",
+      "sha256": "6f5cdea324737de4ab6e14a505a540e1795de1f722b8ecfeb329dc6398f0852f",
+      "bytes": 88377856
+    }
+  }
+}

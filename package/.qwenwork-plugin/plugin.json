@@ -1,9 +1,9 @@
 {
-  "name": "dify-qwen-cli",
-  "version": "0.1.0",
-  "description": "Dify 企业版 CLI 连接器 Mac Apple Silicon 桌面试验版",
+  "name": "dify",
+  "version": "1.0.1",
+  "description": "运行、搭建和发布 Dify 应用。支持 Dify Cloud 和私有部署，登录时输入你的 Dify 控制台地址即可",
   "author": {
-    "name": "Dify CLI integration prototype"
+    "name": "Dify integration project"
   },
   "skills": [
     "skills/dify-qwen/SKILL.md"
