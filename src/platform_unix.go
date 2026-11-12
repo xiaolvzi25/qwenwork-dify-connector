@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"syscall"
+	"time"
 )
 
 func defaultProfileRoot() (string, error) {
@@ -29,11 +30,23 @@ func unlockFile(file *os.File) {
 }
 
 func openBrowser(address string) error {
-	tool := "xdg-open"
 	if runtime.GOOS == "darwin" {
-		tool = "open"
+		return exec.Command("open", address).Run()
 	}
-	return exec.Command(tool, address).Run()
+	// Some Linux desktop openers stay attached for the browser's lifetime.
+	// Reap the opener without blocking portal completion or cancellation.
+	command := exec.Command("xdg-open", address)
+	if err := command.Start(); err != nil {
+		return err
+	}
+	finished := make(chan error, 1)
+	go func() { finished <- command.Wait() }()
+	select {
+	case err := <-finished:
+		return err
+	case <-time.After(250 * time.Millisecond):
+		return nil
+	}
 }
 
 func executableName(name string) string { return name }
