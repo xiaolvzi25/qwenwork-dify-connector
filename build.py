@@ -29,7 +29,11 @@ def archive(path, entries):
                 raise ValueError('Symlinks cannot be packaged')
             info = zipfile.ZipInfo(name, (2026, 11, 6, 0, 0, 0))
             info.create_system = 3
-            info.external_attr = (stat.S_IFREG | (0o755 if src.stat().st_mode & 0o111 else 0o644)) << 16
+            # Windows chmod/stat do not expose POSIX execute bits. Declare the
+            # runtime entries explicitly so a ZIP built on Windows also works
+            # when installed on a Unix desktop.
+            executable = name.startswith(('bin/', 'vendor/')) or src.stat().st_mode & 0o111
+            info.external_attr = (stat.S_IFREG | (0o755 if executable else 0o644)) << 16
             info.compress_type = zipfile.ZIP_DEFLATED
             z.writestr(info, src.read_bytes())
 
