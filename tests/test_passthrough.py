@@ -21,6 +21,7 @@ import urllib.request
 
 
 DEFAULT_BINARY = Path(__file__).resolve().parents[1] / "package/bin/darwin_arm64/dify-qwen"
+DEFAULT_LAUNCHER = Path(__file__).resolve().parents[1] / "package/bin/dify-qwen"
 BINARY = Path(sys.argv.pop(1)).resolve() if len(sys.argv) > 1 and not sys.argv[1].startswith("-") else DEFAULT_BINARY
 
 MOCK = r'''import json, os, signal, sys, time
@@ -65,6 +66,8 @@ class NativeAdapterTests(unittest.TestCase):
     def setUpClass(cls):
         if not BINARY.is_file():
             raise RuntimeError("Build the native adapter before testing: " + str(BINARY))
+        if not DEFAULT_LAUNCHER.is_file():
+            raise RuntimeError("Build the native top-level launcher before testing: " + str(DEFAULT_LAUNCHER))
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="qwen-dify-test-")
@@ -74,6 +77,9 @@ class NativeAdapterTests(unittest.TestCase):
         self.entry.parent.mkdir(parents=True)
         shutil.copy2(BINARY, self.entry)
         self.entry.chmod(0o755)
+        self.launcher = self.package / "bin/dify-qwen"
+        shutil.copy2(DEFAULT_LAUNCHER, self.launcher)
+        self.launcher.chmod(0o755)
         self.vendor = self.package / "vendor/darwin_arm64/difyctl"
         self.vendor.parent.mkdir(parents=True)
         self.vendor.write_text("#!" + sys.executable + "\n" + MOCK)
@@ -96,19 +102,19 @@ class NativeAdapterTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def run_adapter(self, args, *, mode=None, account=None, exit_code=0, input_data=None):
+    def run_adapter(self, args, *, mode=None, account=None, exit_code=0, input_data=None, entry=None):
         env = self.env.copy()
         if mode:
             env["MOCK_MODE"] = mode
         if account is not None:
             env.update(MOCK_MODE="account", MOCK_ACCOUNT=json.dumps(account), MOCK_EXIT=str(exit_code))
-        return subprocess.run([str(self.entry), *args], env=env, input=input_data,
+        return subprocess.run([str(entry or self.entry), *args], env=env, input=input_data,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
 
     def test_connector_version(self):
         p = self.run_adapter(["--version"])
         self.assertEqual(p.returncode, 0, p.stderr)
-        self.assertEqual(p.stdout.strip(), b"0.2.0")
+        self.assertEqual(p.stdout.strip(), b"0.2.1")
 
     def test_direct_and_legacy_cli_arguments_are_unchanged(self):
         args = ["example.with.dot", "--argument", "合同 a'b $(echo x)\n", "--json"]
@@ -150,8 +156,11 @@ class NativeAdapterTests(unittest.TestCase):
                     p.communicate()
 
     def test_process_is_replaced_and_sigterm_reaches_upstream(self):
+        self.assert_exec_pid_and_signal(self.entry)
+
+    def assert_exec_pid_and_signal(self, entry):
         env = dict(self.env, MOCK_MODE="signal")
-        with subprocess.Popen([str(self.entry), "get", "workspace"], env=env,
+        with subprocess.Popen([str(entry), "get", "workspace"], env=env,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
             sel = selectors.DefaultSelector()
             try:
@@ -166,6 +175,31 @@ class NativeAdapterTests(unittest.TestCase):
                 if p.poll() is None:
                     p.kill()
                     p.communicate()
+
+    def test_top_level_entry_preserves_arguments_and_binary_io(self):
+        args = ["example.with.dot", "--input", "合同 a'b $(echo x)\n", "--json"]
+        p = self.run_adapter(args, entry=self.launcher)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertEqual(json.loads(p.stdout)["args"], args)
+        p = self.run_adapter(["--version"], entry=self.launcher)
+        self.assertEqual(p.stdout.strip(), b"0.2.1")
+        p = self.run_adapter(["run", "example", "--stream"], mode="raw", entry=self.launcher)
+        self.assertEqual(p.returncode, 23)
+        self.assertEqual(p.stdout, b'\x00raw\xff\n{"event":1}\n{"event":2}\n')
+        self.assertEqual(p.stderr, b"error\xff\n")
+        payload = b"\x00stdin\xff\n"
+        p = self.run_adapter(["run", "example", "--input", "@-"], mode="stdin", input_data=payload, entry=self.launcher)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertEqual(p.stdout, payload)
+
+    def test_top_level_entry_exec_signal_and_safe_missing_target(self):
+        self.assert_exec_pid_and_signal(self.launcher)
+        self.entry.unlink()
+        p = self.run_adapter(["--version"], entry=self.launcher)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertEqual(p.stdout, b"")
+        self.assertEqual(json.loads(p.stderr)["code"], "E-0004")
+        self.assertNotIn(str(self.root).encode(), p.stderr)
 
     def test_profile_isolation_and_parent_dify_environment_removed(self):
         p = self.run_adapter(["get", "workspace", "--json"])

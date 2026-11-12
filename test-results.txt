@@ -1,5 +1,6 @@
-Adapter 0.2.0 final package verification
-Binary SHA256: cbeedb00706ce3febeceac2fdd0c8cd8d69e7392b47a5fe4aecf6411ac148a74
+Adapter 0.2.1 final package verification
+Adapter SHA256: 723bfecb44de9b62863472906d01e90101f135c97d32cb3ff1621c16add13f36
+Launcher SHA256: fe2cd7e9ae0ac479650af29ca159533fbb70c27f77adf1fca67018053fca2d35
 Command: python3 tests/test_passthrough.py package/bin/darwin_arm64/dify-qwen
 Upstream CLI is mocked; no live Dify authorization performed. Loopback portal tests run outside sandbox.
 
@@ -17,9 +18,11 @@ test_safe_identity_whitelist_and_account_wrappers (__main__.NativeAdapterTests) 
 test_stdin_is_forwarded_byte_exact (__main__.NativeAdapterTests) ... ok
 test_stdout_stderr_and_exit_code_are_byte_exact (__main__.NativeAdapterTests) ... ok
 test_stream_emits_before_upstream_exits (__main__.NativeAdapterTests) ... ok
+test_top_level_entry_exec_signal_and_safe_missing_target (__main__.NativeAdapterTests) ... ok
+test_top_level_entry_preserves_arguments_and_binary_io (__main__.NativeAdapterTests) ... ok
 test_unknown_identity_cannot_claim_authorized (__main__.NativeAdapterTests) ... ok
 
 ----------------------------------------------------------------------
-Ran 15 tests in 13.954s
+Ran 17 tests in 16.044s
 
 OK

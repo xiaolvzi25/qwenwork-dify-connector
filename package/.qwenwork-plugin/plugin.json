@@ -1,6 +1,6 @@
 {
   "name": "dify-qwen-cli",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Dify CLI connector for QwenWork desktop on macOS Apple Silicon",
   "author": {
     "name": "Dify integration project"

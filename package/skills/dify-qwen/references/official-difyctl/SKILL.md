@@ -1,10 +1,10 @@
 ---
 name: difyctl
 description: 'Operate a Dify server through difyctl: find and run any operation, and build, test, publish and change Workflow and Chatflow apps. Use when the task involves difyctl, a Dify server, or Dify apps.'
-display_name: "Dify CLI（测试版）"
-display_name_en: "Dify CLI (Beta)"
-description_zh: "在 WorkBuddy 里用 difyctl 运行和搭建 Dify 应用。支持 Dify Cloud 和私有部署，登录时输入 Dify 控制台地址即可"
-description_en: "Run and build Dify apps with difyctl. For Dify Cloud or self-hosted, log in with your console URL."
+display_name: "dify"
+display_name_en: "dify"
+description_zh: "运行、搭建和发布 Dify 应用。支持 Dify Cloud 和私有部署，登录时输入你的 Dify 控制台地址即可"
+description_en: "Run, build and publish Dify apps. For Dify Cloud or self-hosted, log in with your console URL."
 author: "LangGenius"
 examples_zh:
   - "列出我在 Dify 上的应用"
@@ -14,8 +14,20 @@ examples_en:
   - "List my apps on Dify"
   - "Run the customer support workflow in Dify. The question is..."
   - "Build a workflow on Dify that summarizes a web page in three points, then publish it"
-version: "0.1.0"
+version: "1.0.0"
 ---
+
+> **QwenWork 接入注记（官方业务参考）**：本目录参考来自 LangGenius 的 WorkBuddy 连接器 1.0.0；这里的 `version: "1.0.0"` 表示参考来源版本，并非当前千问连接器版本。业务示例中的 `difyctl <参数>` 在本连接器中统一执行为 `dify-qwen <参数>`，不得调用全局 `difyctl` 绕过连接器身份。登录、状态检查和退出一律遵循[外层 QwenWork Skill](../../SKILL.md) 的 `auth init`、`auth show --status`、`auth logout` 生命周期；下方 WorkBuddy 的登录检查与人工回复策略仅保留作上游参考，不能直接替代千问连接器的鉴权流程。
+
+# Dify in WorkBuddy
+
+This connector installs difyctl but does not log it in. Before the first Dify task in a conversation, check the login:
+
+1. Run `difyctl login --resume --json`. If it prints an `email`, you are logged in. Go on with the task.
+2. If it fails with `not_logged_in`, ask the human for their Dify console address: the URL they open in a browser to use Dify. For Dify Cloud it is `https://cloud.dify.ai`. For self-hosted Dify it is their own address, such as `https://dify.example.com`. Never guess one.
+3. Log in to that address as [`references/setup.md`](references/setup.md) describes: start with `--no-wait`, give the human the link and the code, end your turn, and run `--resume` once when they say they approved.
+
+Talk to the human in their language.
 
 # difyctl
 

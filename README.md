@@ -1,6 +1,6 @@
 # Dify CLI connector for QwenWork
 
-Version 0.2.0 targets QwenWork desktop on macOS Apple Silicon. It packages the unmodified official difyctl 1.18.0 and a native Go adapter for QwenWork's connector lifecycle. No Python, Node.js or Go installation is needed by end users.
+Version 0.2.1 targets QwenWork desktop on macOS Apple Silicon. It packages the unmodified official difyctl 1.18.0 and a native Go adapter for QwenWork's connector lifecycle. The stable top-level entry is `bin/dify-qwen`; it immediately executes `bin/darwin_arm64/dify-qwen` on the supported Mac architecture. No Python, Node.js or Go installation is needed by end users.
 
 ## Architecture
 
@@ -17,6 +17,12 @@ Only the lifecycle branches inspect JSON. All other commands replace the adapter
 5. Discover capabilities with `dify-qwen help --json`, then the relevant command help. Run only operations requested by the user and permitted by the Dify account.
 
 `dify-qwen --version` is the connector version; `dify-qwen version --json` delegates the official CLI version command. `dify-qwen identity whoami` returns identity fields only. `dify-qwen auth logout` logs out this connector profile.
+
+## Marketplace submission
+
+Upload `dify-qwen-listing-config-0.2.1.zip` through the configuration import control at the top of the QwenWork open-platform publishing form. Its `publish/connector.json` source declares `connector_kind: "cli"`, `clients: ["desktop"]` and `auth_type: "oauth"`. The desktop flow uses the CLI's local authorization. Review the imported names, provider, category and version, then upload `dify-qwen-cli-desktop-arm64-0.2.1.zip` through the separate **CLI ZIP package** control below. The listing version and runtime `plugin.json.version` must both be `0.2.1`.
+
+On 2026-11-12, the listing configuration and runtime ZIP were successfully uploaded through QwenWork and the submission entered review. Real client installation, Dify device authorization, connected-state synchronization and token refresh still require acceptance.
 
 ## Credentials and permissions
 
@@ -35,7 +41,7 @@ python3 build.py --go /absolute/path/to/go --official-cli /absolute/path/to/veri
 python3 tests/test_passthrough.py package/bin/darwin_arm64/dify-qwen
 ```
 
-`build.py` verifies the pinned upstream SHA-256 once, compiles a native adapter, preserves executable modes and validates the runtime ZIP. Vendor verification is deliberately not repeated on every business call. Source and test ZIPs exclude upstream binaries and credentials. Build records and checksums stay outside the runtime ZIP.
+`build.py` verifies the pinned upstream SHA-256 once, compiles the native top-level launcher and adapter, preserves executable modes and validates the runtime ZIP. It separately generates the listing configuration ZIP from validated `publish/` sources. The source-and-tests ZIP includes `cmd/launcher`, listing sources and both test reports. Generated archives, upstream binaries and credentials are excluded from the source archive. Vendor verification is deliberately not repeated on every business call. Build records and checksums stay outside the runtime ZIP.
 
 To update difyctl, update the pinned version/hash in `build.py`, review its official Skill, rebuild, run the passthrough/auth tests and repeat the real client acceptance flow. Keep the upstream CLI binary unmodified. Replacing an upstream binary without testing authorization and stream behavior is not a supported upgrade method.
 
@@ -45,7 +51,7 @@ Only macOS arm64 binaries are included. Web Sandbox, Intel Mac and Windows are n
 
 Automated mock tests verify the compatibility layer, not a real enterprise login. Marketplace distribution, real device authorization, token refresh, QwenWork state synchronization and FIN/OPS permission behavior require acceptance against the actual host/server. A historical demonstration recording may illustrate the business flow without proving this version's installation/authorization.
 
-The final macOS arm64 adapter passed 15 mock black-box tests; its SHA-256 is `cbeedb00706ce3febeceac2fdd0c8cd8d69e7392b47a5fe4aecf6411ac148a74`. See `test-results.json` and `test-results.txt` for the tested scope. Real QwenWork installation and device authorization have not yet been accepted. `benchmark.json` reports local offline command-launch timing only, not server throughput.
+The regression suite contains 17 mock black-box tests, including top-level launch, process replacement and exact input/output forwarding. See `test-results.json` and `test-results.txt` for the tested binary hashes, results and scope. Real QwenWork installation and device authorization have not yet been accepted.
 
 ## Notices
 

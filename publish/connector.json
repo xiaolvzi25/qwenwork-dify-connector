@@ -1,0 +1,14 @@
+{
+  "connector_kind": "cli",
+  "server_key": "dify",
+  "display_name": "Dify",
+  "display_name_cn": "Dify",
+  "description": "通过千问办公连接 Dify 企业应用与工作流。用户填写企业 Dify 控制台地址，在浏览器完成本人授权后，可按当前 Dify 身份与权限发现、运行应用，并辅助搭建、调试和发布工作流。\n\n随包提供官方 difyctl 与配套 Skill，业务命令直接调用官方 CLI。适用于 macOS Apple Silicon 桌面端，使用 CLI 自管 OAuth 授权。首次认证由本机浏览器向导展示设备码并检测授权结果，凭据保存在独立的本机配置中。实际可用能力由 Dify 服务端版本及当前账号权限决定。",
+  "version": "0.2.1",
+  "provider_name": "Dify",
+  "category_code": "developer_tools",
+  "clients": [
+    "desktop"
+  ],
+  "auth_type": "oauth"
+}
