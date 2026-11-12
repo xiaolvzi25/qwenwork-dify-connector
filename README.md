@@ -1,6 +1,6 @@
 # Dify CLI connector for QwenWork
 
-Version 0.2.1 targets QwenWork desktop on macOS Apple Silicon. It packages the unmodified official difyctl 1.18.0 and a native Go adapter for QwenWork's connector lifecycle. The stable top-level entry is `bin/dify-qwen`; it immediately executes `bin/darwin_arm64/dify-qwen` on the supported Mac architecture. No Python, Node.js or Go installation is needed by end users.
+Version 1.0.0 targets QwenWork desktop on macOS Apple Silicon. It packages the unmodified official difyctl 1.18.0 and a native Go adapter for QwenWork's connector lifecycle. The stable top-level entry is `bin/dify-qwen`; it immediately executes `bin/darwin_arm64/dify-qwen` on the supported Mac architecture. No Python, Node.js or Go installation is needed by end users.
 
 ## Architecture
 
@@ -20,7 +20,7 @@ Only the lifecycle branches inspect JSON. All other commands replace the adapter
 
 ## Marketplace submission
 
-Upload `dify-qwen-listing-config-0.2.1.zip` through the configuration import control at the top of the QwenWork open-platform publishing form. Its `publish/connector.json` source declares `connector_kind: "cli"`, `clients: ["desktop"]` and `auth_type: "oauth"`. The desktop flow uses the CLI's local authorization. Review the imported names, provider, category and version, then upload `dify-qwen-cli-desktop-arm64-0.2.1.zip` through the separate **CLI ZIP package** control below. The listing version and runtime `plugin.json.version` must both be `0.2.1`.
+Upload `dify-qwen-listing-config-1.0.0.zip` through the configuration import control at the top of the QwenWork open-platform publishing form. Its `publish/connector.json` source declares `connector_kind: "cli"`, `clients: ["desktop"]` and `auth_type: "oauth"`. The desktop flow uses the CLI's local authorization. Review the imported names, provider, category and version, then upload `dify-qwen-cli-desktop-arm64-1.0.0.zip` through the separate **CLI ZIP package** control below. The listing version and runtime `plugin.json.version` must both be `1.0.0`.
 
 On 2026-11-12, the listing configuration and runtime ZIP were successfully uploaded through QwenWork and the submission entered review. Real client installation, Dify device authorization, connected-state synchronization and token refresh still require acceptance.
 

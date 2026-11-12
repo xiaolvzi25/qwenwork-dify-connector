@@ -26,7 +26,7 @@ import (
 	"time"
 )
 
-const version = "0.2.1"
+const version = "1.0.0"
 
 //go:embed portal.html
 var portalHTML string

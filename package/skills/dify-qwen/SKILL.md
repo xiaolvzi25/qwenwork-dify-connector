@@ -35,7 +35,7 @@ description: 在千问办公桌面端通过官方 Dify CLI 连接企业应用，
 
 ## 官方参考
 
-构建、测试或发布前按需读取 [官方 difyctl Skill](references/official-difyctl/SKILL.md) 及其引用。参考中的 `difyctl <参数>` 一律通过本连接器的 `dify-qwen <参数>` 执行；认证使用上文千问生命周期命令。官方业务命令未被本适配器重写。`dify-qwen --version` 返回连接器版本 0.2.1，官方版本通过 `dify-qwen version --json` 查询。
+构建、测试或发布前按需读取 [官方 difyctl Skill](references/official-difyctl/SKILL.md) 及其引用。参考中的 `difyctl <参数>` 一律通过本连接器的 `dify-qwen <参数>` 执行；认证使用上文千问生命周期命令。官方业务命令未被本适配器重写。`dify-qwen --version` 返回连接器版本 1.0.0，官方版本通过 `dify-qwen version --json` 查询。
 
 ## 当前范围
 

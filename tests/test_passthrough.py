@@ -114,7 +114,7 @@ class NativeAdapterTests(unittest.TestCase):
     def test_connector_version(self):
         p = self.run_adapter(["--version"])
         self.assertEqual(p.returncode, 0, p.stderr)
-        self.assertEqual(p.stdout.strip(), b"0.2.1")
+        self.assertEqual(p.stdout.strip(), b"1.0.0")
 
     def test_direct_and_legacy_cli_arguments_are_unchanged(self):
         args = ["example.with.dot", "--argument", "合同 a'b $(echo x)\n", "--json"]
@@ -182,7 +182,7 @@ class NativeAdapterTests(unittest.TestCase):
         self.assertEqual(p.returncode, 0, p.stderr)
         self.assertEqual(json.loads(p.stdout)["args"], args)
         p = self.run_adapter(["--version"], entry=self.launcher)
-        self.assertEqual(p.stdout.strip(), b"0.2.1")
+        self.assertEqual(p.stdout.strip(), b"1.0.0")
         p = self.run_adapter(["run", "example", "--stream"], mode="raw", entry=self.launcher)
         self.assertEqual(p.returncode, 23)
         self.assertEqual(p.stdout, b'\x00raw\xff\n{"event":1}\n{"event":2}\n')

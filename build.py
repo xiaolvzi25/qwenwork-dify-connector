@@ -11,7 +11,7 @@ import stat
 import subprocess
 import zipfile
 
-VERSION = '0.2.1'
+VERSION = '1.0.0'
 UPSTREAM_VERSION = '1.18.0'
 UPSTREAM_SHA256 = 'c9dd3e4ac2e5e5afa7e3ae6c2ab0794994c834438b25791fc8de13c614c13b85'
 ROOT = Path(__file__).resolve().parent

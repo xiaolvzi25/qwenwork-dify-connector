@@ -1,6 +1,6 @@
 # Dify CLI connector for QwenWork
 
-Version 0.2.1 targets QwenWork desktop on macOS Apple Silicon. It packages the unmodified official difyctl 1.18.0 and a native Go adapter for QwenWork's connector lifecycle. The stable top-level entry is `bin/dify-qwen`; it immediately executes `bin/darwin_arm64/dify-qwen` on the supported Mac architecture. No Python, Node.js or Go installation is needed by end users.
+Version 1.0.0 targets QwenWork desktop on macOS Apple Silicon. It packages the unmodified official difyctl 1.18.0 and a native Go adapter for QwenWork's connector lifecycle. The stable top-level entry is `bin/dify-qwen`; it immediately executes `bin/darwin_arm64/dify-qwen` on the supported Mac architecture. No Python, Node.js or Go installation is needed by end users.
 
 ## Architecture
 

@@ -1,14 +1,14 @@
 {
-  "adapter_version": "0.2.1",
+  "adapter_version": "1.0.0",
   "binary_tested": "package/bin/darwin_arm64/dify-qwen",
   "launcher_tested": "package/bin/dify-qwen",
-  "adapter_sha256": "723bfecb44de9b62863472906d01e90101f135c97d32cb3ff1621c16add13f36",
+  "adapter_sha256": "41ed0e1f0bd7b9e88dfde5cb25ed4c7fba7c5eaceb6f0b4a4257480c91d8953a",
   "launcher_sha256": "fe2cd7e9ae0ac479650af29ca159533fbb70c27f77adf1fca67018053fca2d35",
   "command": "python3 tests/test_passthrough.py package/bin/darwin_arm64/dify-qwen",
   "tests": 17,
   "result": "passed",
   "exit_code": 0,
-  "duration_seconds": 16.104,
+  "duration_seconds": 14.883,
   "environment": "macOS arm64, Python3.9 test harness; loopback portal tests outside sandbox; all upstream difyctl responses mocked",
   "scope": [
     "byte-exact argv/stdin/stdout/stderr and exit codes",
