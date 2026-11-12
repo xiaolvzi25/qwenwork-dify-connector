@@ -1,5 +1,5 @@
 Local macOS ARM64 regression for adapter 1.1.0
-All account and authorization responses mocked. Two Windows-only tests are explicitly skipped here; native CI runs them on Windows.
+All account and authorization responses mocked. Two Windows-only tests explicitly skipped on this host; native Windows CI executes them.
 Seven download/receipt/redirect Go tests passed using local HTTP fixtures.
 
 test_connector_version (__main__.NativeAdapterTests) ... ok
@@ -23,6 +23,6 @@ test_windows_ctrl_break_cancels_authorization_process_tree (__main__.NativeAdapt
 test_windows_ctrl_c_cancels_business_process_tree (__main__.NativeAdapterTests) ... skipped 'Windows console and Job Object regression'
 
 ----------------------------------------------------------------------
-Ran 19 tests in 16.561s
+Ran 19 tests in 15.565s
 
 OK (skipped=2)

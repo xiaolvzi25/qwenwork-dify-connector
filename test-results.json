@@ -4,15 +4,15 @@
   "exit_code": 0,
   "tests_run": 19,
   "skipped": 2,
-  "duration_seconds": 16.641,
-  "adapter_sha256": "6f828f1ab6508400c4fc6b620bf2dc9509cacc59a76508cda6accaefb243514b",
+  "duration_seconds": 15.63,
+  "adapter_sha256": "8d174d38b12518e4fcd6e7dc9d49c347726db2773da6500d47e6742dbd7f9dce",
   "launcher_sha256": "f4998b1317ee4cf263769a05582ddf2f13cba73d0e0af70c1d1ba2b471caabe7",
-  "scope": "Real macOS native binaries with native Go upstream mock. Windows console/Job tests skipped on non-Windows. No Windows/Linux execution or live Dify auth claimed.",
+  "scope": "Final macOS native binaries with native Go upstream mock after Linux browser-opener update. Windows console/Job tests skipped on non-Windows. No Windows/Linux execution or live Dify auth claimed.",
   "adapter_version": "1.1.0",
   "download_tests": {
     "top_level_tests": 7,
     "result": "passed",
-    "scope": "Loopback HTTP test server and temporary files; no live account or external network"
+    "scope": "Loopback HTTP fixtures and temporary cache files; no live account"
   },
-  "native_ci": "Separate Windows/Linux/Intel Mac jobs are configured; see GitHub Actions for current results"
+  "native_ci": "Native Windows/Linux/Intel Mac results are published separately in GitHub Actions and release provenance"
 }

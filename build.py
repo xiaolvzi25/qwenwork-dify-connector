@@ -153,7 +153,7 @@ def main():
         adapter = binaries / target / ('dify-qwen' + suffix)
         adapter.parent.mkdir(parents=True)
         env = dict(base_env, GOOS=goos, GOARCH=arch)
-        subprocess.run([args.go, 'build', '-trimpath', '-ldflags=-s -w -buildid=', '-o', str(adapter), './src'], cwd=ROOT, env=env, check=True)
+        subprocess.run([args.go, 'build', '-trimpath', '-buildvcs=false', '-ldflags=-s -w -buildid=', '-o', str(adapter), './src'], cwd=ROOT, env=env, check=True)
         adapter.chmod(0o755)
         binary_format(adapter, target)
         files.append((adapter, adapter.relative_to(package).as_posix()))
@@ -161,7 +161,7 @@ def main():
                            'format_verified': True, 'client_acceptance': 'not yet verified'}
         if goos == 'windows':
             launcher = binaries / 'dify-qwen.exe'
-            subprocess.run([args.go, 'build', '-trimpath', '-ldflags=-s -w -buildid=', '-o', str(launcher), './cmd/launcher'], cwd=ROOT, env=env, check=True)
+            subprocess.run([args.go, 'build', '-trimpath', '-buildvcs=false', '-ldflags=-s -w -buildid=', '-o', str(launcher), './cmd/launcher'], cwd=ROOT, env=env, check=True)
             launcher.chmod(0o755)
             binary_format(launcher,target)
             files.append((launcher, 'bin/dify-qwen.exe'))
@@ -212,7 +212,7 @@ def main():
         sources.extend((f,f.relative_to(ROOT).as_posix()) for f in (ROOT/folder).rglob('*')
                        if f.is_file() and '__pycache__' not in f.parts)
     sources.extend((f,'publish/'+name) for f,name in listing)
-    sources.extend((ROOT/name,name) for name in ('go.mod','README.md','build.py','.gitignore'))
+    sources.extend((ROOT/name,name) for name in ('go.mod','README.md','build.py','.gitignore','.gitattributes'))
     for name in ('test-results.json','test-results.txt'):
         if (ROOT/name).is_file():
             sources.append((ROOT/name,name))
