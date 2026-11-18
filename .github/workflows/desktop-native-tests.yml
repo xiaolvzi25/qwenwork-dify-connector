@@ -2,9 +2,15 @@ name: Desktop native validation
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish a GitHub pre-release v<version> from main, using the version in plugin.json
+        type: boolean
+        default: false
   pull_request:
   push:
     branches: [main]
+    tags: ['v*']
 
 permissions:
   contents: read
@@ -29,6 +35,9 @@ jobs:
             python: python3
           - runner: macos-15-intel
             target: darwin_amd64
+            python: python3
+          - runner: macos-15
+            target: darwin_arm64
             python: python3
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 25
@@ -59,3 +68,116 @@ jobs:
             dist/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 7
+
+  # Builds the five-platform ZIP that is uploaded to QwenWork, and checks that each
+  # adapter in it is byte-identical to the one its native runner tested.
+  package:
+    name: Package all platforms
+    needs: native
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.3'
+          cache: false
+      - name: Build the release packages
+        run: python3 build.py --go go --output dist
+      # https://api.github.com/repos/actions/download-artifact/git/ref/tags/v8.0.2
+      - name: Download native build records
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: native-*
+          path: native
+      - name: Check packaged binaries match the natively tested ones
+        run: |
+          python3 - <<'EOF'
+          import json
+          from pathlib import Path
+          package = json.loads(Path("dist/BUILD-RECORD.json").read_text())["platforms"]
+          tested = set()
+          for record in sorted(Path("native").glob("native-*/dist/BUILD-RECORD.json")):
+              for target, native in json.loads(record.read_text())["platforms"].items():
+                  for key in ("adapter_sha256", "launcher_sha256"):
+                      if native.get(key) != package[target].get(key):
+                          raise SystemExit(f"{target} {key}: packaged build differs from the natively tested build")
+                  tested.add(target)
+          untested = set(package) - tested
+          if untested:
+              raise SystemExit(f"Packaged platforms without a native test run: {sorted(untested)}")
+          print("All packaged adapters match their native builds:", sorted(tested))
+          EOF
+      - name: Upload release packages
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: connector-package
+          path: |
+            dist/*.zip
+            dist/BUILD-RECORD.json
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    name: Publish GitHub pre-release
+    if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.publish)
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # A tag push publishes that tag. A manual run publishes v<version> from main,
+      # creating the tag at this commit, and refuses a tag that points elsewhere
+      # (the version was not bumped).
+      - name: Resolve the release tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          version=$(python3 -c 'import json; print(json.load(open("package/.qwenwork-plugin/plugin.json"))["version"])')
+          tag="v$version"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+              echo "Manual releases run from main only, not $GITHUB_REF" >&2
+              exit 1
+            fi
+            # matching-refs answers 200 with an empty list for a missing tag, so any
+            # API failure stops the job instead of passing for "no such tag".
+            ref=$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/$tag" \
+              --jq ".[] | select(.ref == \"refs/tags/$tag\") | .object | .type + \" \" + .sha")
+            if [ -n "$ref" ]; then
+              existing=${ref#* }
+              if [ "${ref%% *}" = "tag" ]; then
+                existing=$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$existing" --jq .object.sha)
+              fi
+              if [ "$existing" != "$GITHUB_SHA" ]; then
+                echo "Tag $tag already points at $existing; bump the connector version first" >&2
+                exit 1
+              fi
+            fi
+          elif [ "$tag" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match connector version $version" >&2
+            exit 1
+          fi
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: connector-package
+          path: dist
+      - name: Create or update the pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" dist/* --prerelease --target "$GITHUB_SHA" --title "dify $TAG"
+          fi

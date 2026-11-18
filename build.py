@@ -12,7 +12,7 @@ import struct
 import subprocess
 import zipfile
 
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 ROOT = Path(__file__).resolve().parent
 
 def digest(path):

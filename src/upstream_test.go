@@ -108,7 +108,7 @@ func TestDownloadOfficialPublishesVerifiedBinaryAtomically(t *testing.T) {
 	defer cancel()
 	asset := assetForTest(body, server.URL)
 	done := make(chan error, 1)
-	go func() { done <- downloadOfficial(ctx, fixture.path, asset, server.Client()) }()
+	go func() { done <- downloadOfficial(ctx, fixture.path, asset, server.Client(), nil) }()
 	select {
 	case <-started:
 	case <-time.After(10 * time.Second):
@@ -139,6 +139,33 @@ func TestDownloadOfficialPublishesVerifiedBinaryAtomically(t *testing.T) {
 	assertNoPartialDownloads(t, fixture.path)
 }
 
+func TestDownloadOfficialReportsProgressUpToTheFullSize(t *testing.T) {
+	body := bytes.Repeat([]byte("difyctl"), 50000)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer server.Close()
+	destination := filepath.Join(t.TempDir(), "difyctl")
+	var reports []int64
+	progress := func(done, total int64) {
+		if total != int64(len(body)) {
+			t.Errorf("progress total = %d, want %d", total, len(body))
+		}
+		reports = append(reports, done)
+	}
+	if err := downloadOfficial(context.Background(), destination, assetForTest(body, server.URL), server.Client(), progress); err != nil {
+		t.Fatal(err)
+	}
+	if len(reports) == 0 || reports[len(reports)-1] != int64(len(body)) {
+		t.Fatalf("progress never reached the full size: %v", reports)
+	}
+	for i := 1; i < len(reports); i++ {
+		if reports[i] < reports[i-1] {
+			t.Fatalf("progress went backwards: %v", reports)
+		}
+	}
+}
+
 func TestDownloadOfficialRejectsCorruptionWithoutReplacingCache(t *testing.T) {
 	body := []byte("replacement verified upstream binary\n")
 	for _, test := range []struct {
@@ -164,7 +191,7 @@ func TestDownloadOfficialRejectsCorruptionWithoutReplacingCache(t *testing.T) {
 			defer server.Close()
 			asset := assetForTest(body, server.URL)
 			test.mutate(&asset)
-			if err := downloadOfficial(context.Background(), fixture.path, asset, server.Client()); err == nil {
+			if err := downloadOfficial(context.Background(), fixture.path, asset, server.Client(), nil); err == nil {
 				t.Fatal("corrupt download was accepted")
 			}
 			assertCacheUnchanged(t, fixture)
@@ -187,7 +214,7 @@ func TestDownloadOfficialInterruptedTransferPreservesCache(t *testing.T) {
 		_, _ = connection.Write(body[:len(body)/2])
 	}))
 	defer server.Close()
-	if err := downloadOfficial(context.Background(), fixture.path, assetForTest(body, server.URL), server.Client()); err == nil {
+	if err := downloadOfficial(context.Background(), fixture.path, assetForTest(body, server.URL), server.Client(), nil); err == nil {
 		t.Fatal("interrupted transfer was accepted")
 	}
 	assertCacheUnchanged(t, fixture)
@@ -210,7 +237,7 @@ func TestDownloadOfficialCancellationPreservesCache(t *testing.T) {
 	defer cancel()
 	done := make(chan error, 1)
 	go func() {
-		done <- downloadOfficial(ctx, fixture.path, assetForTest(body, server.URL), server.Client())
+		done <- downloadOfficial(ctx, fixture.path, assetForTest(body, server.URL), server.Client(), nil)
 	}()
 	select {
 	case <-started:
@@ -352,5 +379,26 @@ func TestOfficialHTTPRedirectPolicy(t *testing.T) {
 	request, _ := http.NewRequest(http.MethodGet, "https://github.com/download", nil)
 	if err := client.CheckRedirect(request, make([]*http.Request, 8)); err == nil {
 		t.Fatal("unbounded redirect chain was accepted")
+	}
+}
+
+func TestAdoptVerifiedRestoresAStaleReceipt(t *testing.T) {
+	fixture := previousCachedBinary(t)
+	asset := assetForTest(fixture.body, "")
+	later := time.Now().Add(time.Hour)
+	if err := os.Chtimes(fixture.path, later, later); err != nil {
+		t.Fatal(err)
+	}
+	if receiptValid(fixture.path, asset) {
+		t.Fatal("a changed modification time must invalidate the receipt")
+	}
+	if err := verifyOfficial(fixture.path, asset); err != nil {
+		t.Fatal(err)
+	}
+	if err := adoptVerified(fixture.path, asset); err != nil {
+		t.Fatal(err)
+	}
+	if !receiptValid(fixture.path, asset) {
+		t.Fatal("a re-verified binary did not get a fresh receipt")
 	}
 }

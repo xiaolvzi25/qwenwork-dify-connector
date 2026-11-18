@@ -1,6 +1,6 @@
 {
   "name": "dify",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "运行、搭建和发布 Dify 应用。支持 Dify Cloud 和私有部署，登录时输入你的 Dify 控制台地址即可",
   "author": {
     "name": "Dify integration project"

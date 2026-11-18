@@ -2,7 +2,7 @@
 
 Run, build and publish Dify apps. For Dify Cloud or self-hosted, log in with your console URL.
 
-Version 1.0.1 adds Windows and Linux desktop compatibility while retaining the existing Dify device authorization and command interface. The single online installation ZIP contains platform-native adapters and bundled skills; it downloads the unmodified official difyctl 1.18.0 for the current machine on first use, checks the pinned SHA-256 and exact length, then uses a separate local cache.
+Version 1.0.2 keeps the status check off the network (it no longer downloads difyctl), shows download progress on the setup page, and can share the login of a difyctl already used in a terminal. Version 1.0.1 added Windows and Linux desktop compatibility while retaining the existing Dify device authorization and command interface. The single online installation ZIP contains platform-native adapters and bundled skills; it downloads the unmodified official difyctl 1.18.0 for the current machine on first use, checks the pinned SHA-256 and exact length, then uses a separate local cache.
 
 ## Desktop platforms
 
@@ -26,9 +26,9 @@ The whitepaper describes multi-platform entries but does not explicitly certify 
 
 ## Marketplace upload
 
-1. Import dify-qwen-listing-config-1.0.1.zip into the connector configuration field.
-2. Upload dify-qwen-cli-desktop-multiplatform-online-1.0.1.zip into the separate CLI ZIP installation field.
-3. Set the form version to 1.0.1, delivery to desktop, and authentication to OAuth with the desktop CLI managing login. Keep the existing marketplace resource identifier when updating a listing.
+1. Import dify-qwen-listing-config-1.0.2.zip into the connector configuration field.
+2. Upload dify-qwen-cli-desktop-multiplatform-online-1.0.2.zip into the separate CLI ZIP installation field.
+3. Set the form version to 1.0.2, delivery to desktop, and authentication to OAuth with the desktop CLI managing login. Keep the existing marketplace resource identifier when updating a listing.
 4. Test installation, Connect, a real authorized read-only business call, disconnect and token refresh on each target client before broad distribution.
 
 The configuration declares connector_kind=cli and clients=[desktop]. It has no MCP URL, MCP declaration or embedded user credentials. Do not select Web delivery for this desktop device flow. Previous 0.2.1/1.0.0 marketplace upload results do not establish acceptance of this new online multi-platform package.
@@ -41,7 +41,7 @@ The configuration declares connector_kind=cli and clients=[desktop]. It has no M
 4. Official difyctl completes authorization; the adapter verifies the account API and QwenWork checks dify-qwen auth show --status.
 5. Use dify-qwen help --json to discover server operations, then read command help before running the user-authorized operation.
 
-The existing auth init, auth show --status, auth logout, identity whoami and --version interface remains. dify-qwen --version prints 1.0.1; dify-qwen version --json delegates to the official CLI version command. Authentication does not grant any additional Dify permissions.
+The existing auth init, auth show --status, auth logout, identity whoami and --version interface remains. dify-qwen --version prints 1.0.2; dify-qwen version --json delegates to the official CLI version command. Authentication does not grant any additional Dify permissions.
 
 ## Runtime and credentials
 
@@ -50,6 +50,10 @@ Business arguments, stdin, stdout, stderr, streamed results, file paths and exit
 The browser is opened with macOS open, Linux xdg-open, or Windows ShellExecuteW. The authorization portal remains loopback-only with a random URL, Host/Origin/CSRF checks, same-origin Dify verification URLs, and no token output. Cross-process OS locks prevent simultaneous authorization/logout conflicts.
 
 Profiles default to ~/.config/qwenwork-dify-connector on macOS/Linux and %LOCALAPPDATA%/qwenwork-dify-connector on Windows. QWEN_DIFY_CONFIG_DIR can select a different profile. The official CLI receives only that profile's DIFY_CONFIG_DIR; inherited DIFY_* settings are removed (case-insensitively on Windows). A profile belongs to the OS user, not automatically to a QwenWork account. Disconnect before switching QwenWork accounts, or have the host select an account-specific profile. Tokens and refresh behavior remain owned by official difyctl.
+
+The setup page can instead share the login of a difyctl the user already runs in a terminal ("使用本机 difyctl 的登录", off by default). Only when the box is ticked does the page look for that difyctl's config folder: DIFY_CONFIG_DIR, then the user's login shell (QwenWork does not see shell variables), then difyctl's default folder. The user can edit the folder. A working login there is reused only when its server matches the one entered; a login for another server, or a non-HTTPS one, is refused rather than used or replaced. With no saved login, the device login is saved in that folder with difyctl's usual token storage (the OS keyring where available). With sharing on, the connector and the terminal use one login: logging out in the connector also logs out the terminal, and the agent acts as whoever the terminal is logged in as.
+
+auth logout always leaves the connector disconnected until the next Connect, including when the official CLI is not installed yet (an older profile's saved login is then blocked, not revoked) and when a terminal later logs in again in a shared folder.
 
 ## Build and verify
 
@@ -63,7 +67,7 @@ GO_BINARY=/absolute/path/to/go python3 tests/test_passthrough.py
 
 Default builds compile all five OS/architecture adapters. --target linux_amd64 (or another catalog target) builds a single platform. --official-cli /path/to/verified/difyctl additionally includes an offline upstream binary and requires exactly one --target; the build rejects a mismatched pinned hash. Build artifacts, downloaded upstream binaries, cache directories and credentials are excluded from the source ZIP.
 
-The CI workflow runs regression tests on native Windows and Linux runners, verifies the real pinned upstream download/version and checks that a fresh unauthorized status does not download. Reports distinguish build checks, simulated account/authorization behavior, and real client acceptance. Cross-compilation alone is not a native execution test. Local or CI mock results do not prove real Dify login, token refresh, FIN/OPS RBAC or marketplace installation.
+The CI workflow runs the Go tests, the regression suite and the real pinned upstream download on native runners for all five targets (Windows x64, Linux x64/ARM64, macOS Intel/Apple Silicon). It then builds the five-platform packages and fails unless every packaged adapter is byte-identical to the one its native runner tested. The packages are kept as the connector-package artifact. Pushing a tag v<version> that matches plugin.json publishes them to a GitHub pre-release. The same release can be cut from the Actions page: run the workflow manually on main with "publish" ticked, and it creates v<version> at that commit (it refuses if that tag already points at another commit). Uploading to QwenWork stays manual. Reports distinguish build checks, simulated account/authorization behavior, and real client acceptance. Cross-compilation alone is not a native execution test. Local or CI mock results do not prove real Dify login, token refresh, FIN/OPS RBAC or marketplace installation.
 
 ## Notices
 

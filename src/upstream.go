@@ -6,7 +6,6 @@ import (
 	_ "embed"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -65,42 +64,50 @@ func cachedOfficialPath() (string, upstreamAsset, error) {
 	return filepath.Join(dir, "runtime", catalog.Version, runtime.GOOS+"_"+runtime.GOARCH, officialFilename()), asset, nil
 }
 
-// A new installation can report unauthorized immediately without a network call.
-// Existing profiles still go through the official account check after upgrades.
-func freshUninstalledProfile() (bool, error) {
-	if vendorPath != "" {
-		return false, nil
-	}
-	self, err := os.Executable()
+// The client sees E-0001 (status reports unauthorized), but callers can tell it apart
+// from "not logged in": without the CLI nothing can check or end a saved login.
+var errCLINotInstalled = &adapterError{"E-0001", "官方 difyctl 尚未安装，请在连接器页面点击认证。"}
+
+// Status, identity and logout must answer without the network, so they only use a
+// CLI that is already installed. Only Connect and business calls download it.
+func installedOfficialCLI() (string, error) {
+	path, asset, err := cachedOfficialPath()
 	if err != nil {
-		return false, err
+		return "", err
 	}
-	bundled := filepath.Join(filepath.Dir(self), "..", "..", "vendor", runtime.GOOS+"_"+runtime.GOARCH, officialFilename())
-	if _, err = os.Lstat(bundled); err == nil {
-		return false, nil
+	if receiptValid(path, asset) {
+		return path, nil
 	}
-	if !errors.Is(err, os.ErrNotExist) {
-		return false, err
+	// A complete binary whose receipt went stale (a crash, a restore, antivirus) is
+	// re-hashed locally instead of being treated as missing.
+	if verifyOfficial(path, asset) != nil {
+		return "", errCLINotInstalled
 	}
-	cache, _, err := cachedOfficialPath()
-	if err != nil {
-		return false, err
+	if err = adoptVerified(path, asset); err != nil {
+		return "", err
 	}
-	if _, err = os.Lstat(cache); err == nil {
-		return false, nil
+	return path, nil
+}
+
+func adoptVerified(path string, asset upstreamAsset) error {
+	if err := os.Chmod(path, 0700); err != nil {
+		return err
 	}
-	if !errors.Is(err, os.ErrNotExist) {
-		return false, err
-	}
-	dir, err := root()
-	if err != nil {
-		return false, err
-	}
-	_, err = os.Lstat(filepath.Join(dir, "difyctl"))
-	if errors.Is(err, os.ErrNotExist) {
-		return true, nil
-	}
-	return false, err
+	return writeReceipt(path, asset)
+}
+
+type downloadProgress func(done, total int64)
+
+type progressWriter struct {
+	done   int64
+	total  int64
+	report downloadProgress
+}
+
+func (w *progressWriter) Write(chunk []byte) (int, error) {
+	w.done += int64(len(chunk))
+	w.report(w.done, w.total)
+	return len(chunk), nil
 }
 
 func receiptValid(path string, asset upstreamAsset) bool {
@@ -152,7 +159,7 @@ func verifyOfficial(path string, asset upstreamAsset) error {
 	return nil
 }
 
-func downloadOfficial(ctx context.Context, destination string, asset upstreamAsset, client *http.Client) error {
+func downloadOfficial(ctx context.Context, destination string, asset upstreamAsset, client *http.Client, progress downloadProgress) error {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, asset.URL, nil)
 	if err != nil {
 		return err
@@ -176,7 +183,11 @@ func downloadOfficial(ctx context.Context, destination string, asset upstreamAss
 	defer os.Remove(file.Name())
 	defer file.Close()
 	hash := sha256.New()
-	count, err := io.Copy(io.MultiWriter(file, hash), io.LimitReader(response.Body, asset.Bytes+1))
+	sink := io.MultiWriter(file, hash)
+	if progress != nil {
+		sink = io.MultiWriter(file, hash, &progressWriter{total: asset.Bytes, report: progress})
+	}
+	count, err := io.Copy(sink, io.LimitReader(response.Body, asset.Bytes+1))
 	if err != nil {
 		return err
 	}
@@ -216,7 +227,7 @@ func officialHTTPClient() *http.Client {
 	}
 }
 
-func ensureOfficialCLI(ctx context.Context) (string, error) {
+func ensureOfficialCLI(ctx context.Context, progress downloadProgress) (string, error) {
 	path, asset, err := cachedOfficialPath()
 	if err != nil {
 		return "", err
@@ -260,13 +271,10 @@ func ensureOfficialCLI(ctx context.Context) (string, error) {
 		return path, nil
 	}
 	if verifyOfficial(path, asset) == nil {
-		if err = os.Chmod(path, 0700); err == nil {
-			err = writeReceipt(path, asset)
+		if err = adoptVerified(path, asset); err != nil {
+			return "", problem("E-0004", "无法准备本机官方 CLI 缓存，请检查文件权限。")
 		}
-		if err == nil {
-			return path, nil
-		}
-		return "", problem("E-0004", "无法准备本机官方 CLI 缓存，请检查文件权限。")
+		return path, nil
 	}
 	if info, statErr := os.Lstat(path); statErr == nil && !info.Mode().IsRegular() {
 		return "", problem("E-0004", "官方 CLI 缓存不是普通文件，请重新安装连接器。")
@@ -276,7 +284,7 @@ func ensureOfficialCLI(ctx context.Context) (string, error) {
 		return "", problem("E-0004", "官方 CLI 下载清单无效。")
 	}
 	fmt.Fprintln(os.Stderr, "首次使用：正在下载并校验官方 difyctl 1.18.0；后续调用使用本机缓存。")
-	if err = downloadOfficial(ctx, path, asset, officialHTTPClient()); err != nil {
+	if err = downloadOfficial(ctx, path, asset, officialHTTPClient(), progress); err != nil {
 		if ctx.Err() != nil {
 			return "", problem("E-0002", "官方 CLI 安装已取消。")
 		}

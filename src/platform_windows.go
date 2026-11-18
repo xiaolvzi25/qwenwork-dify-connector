@@ -15,6 +15,18 @@ var lockFileEx = platformKernel32.NewProc("LockFileEx")
 var unlockFileEx = platformKernel32.NewProc("UnlockFileEx")
 var getSystemDirectory = platformKernel32.NewProc("GetSystemDirectoryW")
 
+// Windows GUI apps inherit the user's environment variables, so there is no shell to ask.
+func loginShellEnv(...string) map[string]string { return nil }
+
+func defaultCLIConfigDir(string) string {
+	for _, name := range []string{"APPDATA", "LOCALAPPDATA"} {
+		if dir := os.Getenv(name); dir != "" {
+			return filepath.Join(dir, "difyctl")
+		}
+	}
+	return ""
+}
+
 func defaultProfileRoot() (string, error) {
 	local, err := os.UserCacheDir() // LOCALAPPDATA, not the roaming profile.
 	if err != nil {
