@@ -71,6 +71,19 @@ def process_running(pid):
         kernel.CloseHandle(handle)
 
 
+def unlink_when_released(path, timeout=5):
+    """Windows refuses to delete an executable until its process has fully exited."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            path.unlink()
+            return
+        except PermissionError:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(0.05)
+
+
 class NativeAdapterTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -263,7 +276,7 @@ class NativeAdapterTests(unittest.TestCase):
 
     def test_top_level_entry_exec_signal_and_safe_missing_target(self):
         self.assert_exec_pid_and_signal(self.launcher)
-        self.entry.unlink()
+        unlink_when_released(self.entry)
         p = self.run_adapter(["--version"], entry=self.launcher)
         self.assertNotEqual(p.returncode, 0)
         self.assertEqual(p.stdout, b"")

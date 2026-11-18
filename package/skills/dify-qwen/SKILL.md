@@ -5,7 +5,7 @@ description: 运行、搭建和发布 Dify 应用。支持 Dify Cloud 和私有�
 description_en: Run, build and publish Dify apps. For Dify Cloud or self-hosted, log in with your console URL.
 ---
 
-# Dify 企业版连接器
+# Dify 连接器
 
 本连接器调用命令 `dify-qwen`。Unix 顶层入口为 `bin/dify-qwen`，Windows 为 `bin/dify-qwen.exe`，自动选择本机系统与架构的原生适配器。首次使用下载固定版本官方 difyctl 并校验 SHA-256，之后使用本机缓存；用户不需要安装 Python、Node.js 或 Go。它是 CLI 连接器，安装包同时提供适配器和本 Skill。
 
@@ -13,7 +13,7 @@ description_en: Run, build and publish Dify apps. For Dify Cloud or self-hosted,
 
 先运行 `dify-qwen auth show --status`。正常未登录为严格 JSON `{"status":"unauthorized"}`，退出码 0。网络错误或权限不足不能当作已连接。未连接时引导用户在连接器页面点击认证，不因业务未授权而自动登录。
 
-用户明确要求连接时，可运行 `dify-qwen auth init`。它打开浏览器连接向导：用户填写 HTTPS Dify 控制台地址、看到设备码并自行在 Dify 页面批准，程序自动检测结果。可以用 `--server https://企业控制台域名` 预填地址。不依赖终端输入，不向用户索取令牌，不读取凭据文件。不要在 Web Sandbox 运行本包。
+用户明确要求连接时，可运行 `dify-qwen auth init`。它打开浏览器连接向导：用户填写 HTTPS Dify 控制台地址、看到设备码并自行在 Dify 页面批准，程序自动检测结果。可以用 `--server https://Dify控制台域名` 预填地址。不依赖终端输入，不向用户索取令牌，不读取凭据文件。不要在 Web Sandbox 运行本包。
 
 认证后用 `dify-qwen identity whoami` 确认身份。若同一台电脑切换千问账号，先确认 Dify 身份并退出旧连接；默认 profile 按操作系统用户保存，不会自动随千问账号分区。退出仅在用户明确请求时运行 `dify-qwen auth logout`；它只影响本连接器独立 profile，活动认证向导需先关闭。
 
